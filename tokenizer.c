@@ -12,6 +12,7 @@
 
 // letter checker
 bool isLetter(char ch) {
+    // uses the ASCII codes to compare and actually check if its a letter
     if( !( ((ch > 'a') && (ch < 'z')) || ((ch > 'A') && (ch < 'Z')) ) ) {
         return false;
     }
@@ -20,6 +21,7 @@ bool isLetter(char ch) {
 
 // number check
 bool isNumber(char ch) {
+    // uses the ASCII codes to compare and actually check if its a number
     if( !( (ch > '0') && (ch < '9') )  ) {
         return false;
     }else{
@@ -51,12 +53,140 @@ bool isDelim(char ch) {
 }
 
 void print(char *hold, int flag) {
+    // multiple cases need........
     switch(flag) {
         case 0: // word 
             printf("word: \"%s\"\n", hold);
             break;
         case 1:
+            printf("decimal integer: \"%s\"\n", hold);
             break;
+        /*
+
+        case #:
+            printf("left parenthesis: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("right parenthesis: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("left bracket: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("right bracket: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("structure member: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("structure pointer: \"%s\"\n", hold);
+            break;
+         case #:
+            printf("comma: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("negate: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("1s complement: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("shift right: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("shift left: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("bitwise XOR: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("bitwise OR: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("increment: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("decrement: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("addition: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("division: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("logical OR: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("logical AND: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("conditional true: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("conditional false: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("equality test: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("inequality test: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("less than test: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("greater than test: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("less than or equal test: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("greater than or equal test: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("assignment: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("plus equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("minus equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("times equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("divide equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("mod equals \"%s\"\n", hold);
+            break;
+        case #:
+            printf("shift right equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("shift left equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("bitwise AND equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("bitwise XOR equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("bitwise OR equals: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("AND/address operator: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("minus/subtract operator: \"%s\"\n", hold);
+            break;
+        case #:
+            printf("multiply/dereference operator: \"%s\"\n", hold);
+            break;
+        */
         default: // should never hit here
             break;
     }
