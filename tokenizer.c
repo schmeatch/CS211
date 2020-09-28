@@ -29,23 +29,6 @@ bool isNumber(char ch) {
     }
 }
 
-//operators consist of no letters or numbers and are of length 3 chars or smaller *exception to sizeof operator
-bool isOperator(char *str) {
-    if (strcmp(str, "sizeof") ) {
-        return true;
-    }else if (strlen(str) > 3) {
-        return false;
-    }else{
-        char currentchar = str[0];
-        int i;
-        for (i = 0; i < strlen(str); i++){
-            currentchar = str[i];
-            if( ( (currentchar > 'a') && (currentchar < 'z') ) || ( (currentchar > 'A') && (currentchar < 'Z') ) || ( (currentchar > '0') && (currentchar < '9') ) ) return false;
-        }
-    }
-    return true;
-}
-
 //RETURNS FLAG OF OPERATOR - returns -1 for not operator
 int whichOperator(char *str){
     if( strcmp(str,"(") == 0){
