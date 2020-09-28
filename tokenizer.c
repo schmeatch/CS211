@@ -13,33 +13,20 @@
 // letter checker
 bool isLetter(char ch) {
     // uses the ASCII codes to compare and actually check if its a letter
-    if( !( ((ch > 'a') && (ch < 'z')) || ((ch > 'A') && (ch < 'Z')) ) ) {
-        return false;
-    }
+    if( !( ((ch > 'a') && (ch < 'z')) || ((ch > 'A') && (ch < 'Z')) ) )   return false;
     return true;
 }
-
 // number check
 bool isNumber(char ch) {
     // uses the ASCII codes to compare and actually check if its a number
-    if( !( (ch > '0') && (ch < '9') )  ) {
-        return false;
-    }else{
+    if( !( (ch > '0') && (ch < '9') )  )  return false;
         return true;
-    }
 }
-
 //operator check
 bool isOperator(char ch) {
-    
-    if( (isNumber(ch)) || (isLetter(ch)) ){
-        return false;
-    }else{
+    if( (isNumber(ch)) || (isLetter(ch)) ) return false;
         return true;
-    }
-    
 }
-
 // delim check
 bool isDelim(char ch) {
     if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f') return true;
@@ -287,7 +274,7 @@ void print(char *hold, int flag) {
 int main (int argc, char **argv) { 
     // used to hold the temporary string and its flag (determines which type it is.)
     char *hold = malloc(sizeof(char) * strlen(argv[1]));
-    char *last_hold = malloc(sizeof(char) * strlen(argv[1]));
+    char *last_held = malloc(sizeof(char) * strlen(argv[1]));
     int hold_type;
     //hold types: 0-words, 1-nums, 2-ops -1 = delim
     int char_type;
@@ -320,7 +307,7 @@ int main (int argc, char **argv) {
         // delim or if types mismatch
         // only does something if hold has something inside
         if(strlen(hold)>0){
-            if((hold_type == 2) && (char_type != 2)){ 
+            if( ((hold_type == 2) && (char_type != 2)) || ((whichOperator(last_held)!= -1) && (whichOperator(hold) == -1)) ){ 
                 //get flag operator
                
                 flag = whichOperator(hold);
@@ -329,8 +316,8 @@ int main (int argc, char **argv) {
 
                 // we want to reset the values of hold and flag 
                 free(hold);
-                free(last_hold);
-                last_hold = malloc(sizeof(char) * strlen(argv[1]));
+                free(last_held);
+                last_held = malloc(sizeof(char) * strlen(argv[1]));
                 hold = malloc(sizeof(char) * strlen(argv[1]));
                 flag = -1;
                 count = 1;
@@ -342,8 +329,8 @@ int main (int argc, char **argv) {
 
             // we want to reset the values of hold and flag 
             free(hold);
-            free(last_hold);
-            last_hold = malloc(sizeof(char) * strlen(argv[1]));
+            free(last_held);
+            last_held = malloc(sizeof(char) * strlen(argv[1]));
             hold = malloc(sizeof(char) * strlen(argv[1]));
             flag = -1;
             count = 1;
@@ -377,6 +364,7 @@ int main (int argc, char **argv) {
         } 
 
         if(strlen(hold) != 0) {
+            last_held= strcpy(last_held,hold);
             hold[count] = argv[1][i];
             count++;
 
