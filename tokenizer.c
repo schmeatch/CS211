@@ -55,6 +55,8 @@ void print(char *hold, int flag) {
         case 0: // word 
             printf("word: \"%s\"\n", hold);
             break;
+        case 1:
+            break;
         default: // should never hit here
             break;
     }
