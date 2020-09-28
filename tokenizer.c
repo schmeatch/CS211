@@ -29,6 +29,23 @@ bool isNumber(char ch) {
     }
 }
 
+//operator check
+bool isOperator(char ch) {
+    
+    if( (isNumber(ch)) || (isLetter(ch)) ){
+        return false;
+    }else{
+        return true;
+    }
+    
+}
+
+// delim check
+bool isDelim(char ch) {
+    if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f') return true;
+    return false;
+}
+
 //RETURNS FLAG OF OPERATOR - returns -1 for not operator
 int whichOperator(char *str){
     if( strcmp(str,"(") == 0){
@@ -123,11 +140,6 @@ int whichOperator(char *str){
     
 }
 
-// for now, i'm only adding in spaces, the other delims have to be added s00ntm
-bool isDelim(char ch) {
-    if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f') return true;
-    return false;
-}
 
 void print(char *hold, int flag) {
     // multiple cases need........
@@ -276,16 +288,43 @@ int main (int argc, char **argv) {
     // used to hold the temporary string and its flag (determines which type it is.)
     char *hold = malloc(sizeof(char) * strlen(argv[1]));
     char *last_hold = malloc(sizeof(char) * strlen(argv[1]));
+    int hold_type;
+    //hold types: 0-words, 1-nums, 2-ops -1 = delim
+    int char_type;
     int flag;
     int count = 1;
     
     // to loop through every basic character (start small then expand)
     int i;
     for(i = 0; argv[1][i] != '\0'; i++) {
-        // delim case
-        if(isDelim(argv[1][i])) {
-            if(strlen(hold) != 0) {
-                // in this part, we need to figure out how to print out the what the thing is : "string". for now, i'm only implementing word
+
+ 
+        //for every char get char type
+        if ( isLetter(argv[1][i]) ){
+                char_type = 0;
+        }else if ( isNumber(argv[1][i]) ){
+                char_type = 1;
+        }else if (isDelim(argv[1][i]) ){
+                char_type = -1;
+        }else{ //operator
+                char_type = 2;
+        }
+        /////////////////////////////////
+       // printf("(%c:",argv[1][i]);
+       // printf("%ld)",strlen(hold));
+       // printf("-%d",char_type);
+        //////////////////////////////////
+
+        
+
+        // delim or if types mismatch
+        // only does something if hold has something inside
+        if(strlen(hold)>0){
+            if((hold_type == 2) && (char_type != 2)){ 
+                //get flag operator
+               
+                flag = whichOperator(hold);
+                //print as normal
                 print(hold, flag);
 
                 // we want to reset the values of hold and flag 
@@ -296,21 +335,41 @@ int main (int argc, char **argv) {
                 flag = -1;
                 count = 1;
                 continue;
-            } else {
-                continue;
+            }else if(isDelim(argv[1][i]) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) || ((hold_type == 0) && (char_type == 1))) {
+            
+            // in this part, we need to figure out how to print out the what the thing is : "string". for now, i'm only implementing word
+            print(hold, flag);
+
+            // we want to reset the values of hold and flag 
+            free(hold);
+            free(last_hold);
+            last_hold = malloc(sizeof(char) * strlen(argv[1]));
+            hold = malloc(sizeof(char) * strlen(argv[1]));
+            flag = -1;
+            count = 1;
+            continue;
+            
             }
         }
+        
 
         if(strlen(hold) == 0) {
             // flag determines the first character of the current token. 0 = word, 1 = digit, 2 = operator. we will do different operations based on that.
-            if ( isLetter(argv[1][i]) ){
+            if (isLetter(argv[1][i]) ){
                 flag = 0;
+                hold_type = 0;
             }else if ( isNumber(argv[1][i]) ){
-                flag = 1;
-            }else{
+                flag = 43;
+                hold_type = 1;
+            }else if (isOperator(argv[1][i]) ){
+                
                 //operator
-                flag = 2;
+                flag = 1;
+                hold_type = 2;
             }
+            /////////////////////////////////
+            //printf("+%d",hold_type);
+            //////////////////////////////////
             
             //asigns the first value and moves on
             hold[0] = argv[1][i];
