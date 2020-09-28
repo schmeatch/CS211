@@ -127,7 +127,7 @@ int whichOperator(char *str){
     
 }
 
-
+//prints hold with token name dependant on flag
 void print(char *hold, int flag) {
     // multiple cases need........
     switch(flag) {
@@ -272,11 +272,11 @@ void print(char *hold, int flag) {
 }
 
 int main (int argc, char **argv) { 
-    // used to hold the temporary string and its flag (determines which type it is.)
+    
     char *hold = malloc(sizeof(char) * strlen(argv[1]));
     char *last_held = malloc(sizeof(char) * strlen(argv[1]));
     int hold_type;
-    //hold types: 0-words, 1-nums, 2-ops -1 = delim
+    //hold/char types: 0-words, 1-nums, 2-ops -1 = delim
     int char_type;
     int flag;
     int count = 1;
@@ -296,52 +296,54 @@ int main (int argc, char **argv) {
         }else{ //operator
                 char_type = 2;
         }
-        /////////////////////////////////
-       // printf("(%c:",argv[1][i]);
-       // printf("%ld)",strlen(hold));
-       // printf("-%d",char_type);
+        //////////////just for debugging///////////////////
+        //printf("(%c:",argv[1][i]);
+        //printf("%ld)",strlen(hold));
+        //printf("-%d",char_type);
         //////////////////////////////////
 
         
 
         // delim or if types mismatch
-        // only does something if hold has something inside
+        // print token and reset variables
+        // only does something if hold is storing chars
         if(strlen(hold)>0){
+
+            //special case for operators
             if( ((hold_type == 2) && (char_type != 2)) || ((whichOperator(last_held)!= -1) && (whichOperator(hold) == -1)) ){ 
                 //get flag operator
-               
                 flag = whichOperator(hold);
                 //print as normal
                 print(hold, flag);
 
-                // we want to reset the values of hold and flag 
+                //reset the values of hold and flag 
                 free(hold);
                 free(last_held);
                 last_held = malloc(sizeof(char) * strlen(argv[1]));
                 hold = malloc(sizeof(char) * strlen(argv[1]));
                 flag = -1;
                 count = 1;
-                continue;
+                
             }else if(isDelim(argv[1][i]) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) || ((hold_type == 0) && (char_type == 1))) {
-            
-            // in this part, we need to figure out how to print out the what the thing is : "string". for now, i'm only implementing word
+            //print token
             print(hold, flag);
 
-            // we want to reset the values of hold and flag 
+            //reset the values of hold and flag 
             free(hold);
             free(last_held);
             last_held = malloc(sizeof(char) * strlen(argv[1]));
             hold = malloc(sizeof(char) * strlen(argv[1]));
             flag = -1;
             count = 1;
-            continue;
+            
             
             }
         }
         
-
-        if(strlen(hold) == 0) {
-            // flag determines the first character of the current token. 0 = word, 1 = digit, 2 = operator. we will do different operations based on that.
+        //if hold is empty and current char is not delim
+        // we can add char to hold and specify hold_type
+        if(strlen(hold) == 0 && char_type != -1) {
+            
             if (isLetter(argv[1][i]) ){
                 flag = 0;
                 hold_type = 0;
@@ -354,7 +356,7 @@ int main (int argc, char **argv) {
                 flag = 1;
                 hold_type = 2;
             }
-            /////////////////////////////////
+            /////////////just for debugging////////////////////
             //printf("+%d",hold_type);
             //////////////////////////////////
             
@@ -363,7 +365,9 @@ int main (int argc, char **argv) {
             continue;
         } 
 
-        if(strlen(hold) != 0) {
+        //if hold is not empty and current char is not delim
+        // store hold in last_held + update hold (append char)
+        if(strlen(hold) != 0 && char_type != -1) {
             last_held= strcpy(last_held,hold);
             hold[count] = argv[1][i];
             count++;
