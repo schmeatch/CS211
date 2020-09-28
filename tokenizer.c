@@ -46,6 +46,100 @@ bool isOperator(char *str) {
     return true;
 }
 
+//RETURNS FLAG OF OPERATOR - returns -1 for not operator
+int whichOperator(char *str){
+    if( strcmp(str,"(") == 0){
+        return 1;
+    }else if ( strcmp(str,")") == 0){ 
+        return 2;
+    }else if ( strcmp(str,"[") == 0){ 
+        return 3;
+    }else if ( strcmp(str,"]") == 0){ 
+        return 4;
+    }else if ( strcmp(str,".") == 0){ 
+        return 5;
+    }else if ( strcmp(str,"->") == 0){ 
+        return 6;
+    }else if ( strcmp(str,"sizeof") == 0){ 
+        return 7;
+    }else if ( strcmp(str,",") == 0){ 
+        return 8;
+    }else if ( strcmp(str,"!") == 0){ 
+        return 9;
+    }else if ( strcmp(str,"~") == 0){ 
+        return 10;
+    }else if ( strcmp(str,">>") == 0){ 
+        return 11;
+    }else if ( strcmp(str,"<<") == 0){ 
+        return 12;
+    }else if ( strcmp(str,"^") == 0){ 
+        return 13;
+    }else if ( strcmp(str,"|") == 0){ 
+        return 14;
+    }else if ( strcmp(str,"++") == 0){ 
+        return 15;
+    }else if ( strcmp(str,"--") == 0){ 
+        return 16;
+    }else if ( strcmp(str,"+") == 0){ 
+        return 17;
+    }else if ( strcmp(str,"/") == 0){ 
+        return 18;
+    }else if ( strcmp(str,"||") == 0){ 
+        return 19;
+    }else if ( strcmp(str,"&&") == 0){ 
+        return 20;
+    }else if ( strcmp(str,"?") == 0){ 
+        return 21;
+    }else if ( strcmp(str,":") == 0){ 
+        return 22;
+    }else if ( strcmp(str,"==") == 0){ 
+        return 23;
+    }else if ( strcmp(str,"!=") == 0){ 
+        return 24;
+    }else if ( strcmp(str,"<") == 0){ 
+        return 25;
+    }else if ( strcmp(str,">") == 0){ 
+        return 26;
+    }else if ( strcmp(str,"<=") == 0){ 
+        return 27;
+    }else if ( strcmp(str,">=") == 0){ 
+        return 28;
+    }else if ( strcmp(str,"=") == 0){ 
+        return 29;
+    }else if ( strcmp(str,"+=") == 0){ 
+        return 30;
+    }else if ( strcmp(str,"-=") == 0){ 
+        return 31;
+    }else if ( strcmp(str,"*=") == 0){ 
+        return 32;
+    }else if ( strcmp(str,"/=") == 0){ 
+        return 33;
+    }else if ( strcmp(str,"%=") == 0){ 
+        return 34;
+    }else if ( strcmp(str,">>=") == 0){ 
+        return 35;
+    }else if ( strcmp(str,"<<=") == 0){ 
+        return 36;
+    }else if ( strcmp(str,"&=") == 0){ 
+        return 37;
+    }else if ( strcmp(str,"^=") == 0){ 
+        return 38;
+    }else if ( strcmp(str,"|=") == 0){ 
+        return 39;
+    }else if ( strcmp(str,"&") == 0){ 
+        return 40;
+    }else if ( strcmp(str,"-") == 0){ 
+        return 41;
+    }else if ( strcmp(str,"*") == 0){ 
+        return 42;
+    }else{
+        return -1;
+    }
+    
+        
+    
+}
+
 // for now, i'm only adding in spaces, the other delims have to be added s00ntm
 bool isDelim(char ch) {
     if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f') return true;
@@ -58,135 +152,138 @@ void print(char *hold, int flag) {
         case 0: // word 
             printf("word: \"%s\"\n", hold);
             break;
-        case 1:
-            printf("decimal integer: \"%s\"\n", hold);
-            break;
-        /*
 
-        case #:
+           //1 - 42 operators 
+        case 1:
             printf("left parenthesis: \"%s\"\n", hold);
             break;
-        case #:
+        case 2:
             printf("right parenthesis: \"%s\"\n", hold);
             break;
-        case #:
+        case 3:
             printf("left bracket: \"%s\"\n", hold);
             break;
-        case #:
+        case 4:
             printf("right bracket: \"%s\"\n", hold);
             break;
-        case #:
+        case 5:
             printf("structure member: \"%s\"\n", hold);
             break;
-        case #:
+        case 6:
             printf("structure pointer: \"%s\"\n", hold);
             break;
-         case #:
+        case 7:
+            printf("sizeof: \"%s\"\n", hold);
+            break;
+         case 8:
             printf("comma: \"%s\"\n", hold);
             break;
-        case #:
+        case 9:
             printf("negate: \"%s\"\n", hold);
             break;
-        case #:
+        case 10:
             printf("1s complement: \"%s\"\n", hold);
             break;
-        case #:
+        case 11:
             printf("shift right: \"%s\"\n", hold);
             break;
-        case #:
+        case 12:
             printf("shift left: \"%s\"\n", hold);
             break;
-        case #:
+        case 13:
             printf("bitwise XOR: \"%s\"\n", hold);
             break;
-        case #:
+        case 14:
             printf("bitwise OR: \"%s\"\n", hold);
             break;
-        case #:
+        case 15:
             printf("increment: \"%s\"\n", hold);
             break;
-        case #:
+        case 16:
             printf("decrement: \"%s\"\n", hold);
             break;
-        case #:
+        case 17:
             printf("addition: \"%s\"\n", hold);
             break;
-        case #:
+        case 18:
             printf("division: \"%s\"\n", hold);
             break;
-        case #:
+        case 19:
             printf("logical OR: \"%s\"\n", hold);
             break;
-        case #:
+        case 20:
             printf("logical AND: \"%s\"\n", hold);
             break;
-        case #:
+        case 21:
             printf("conditional true: \"%s\"\n", hold);
             break;
-        case #:
+        case 22:
             printf("conditional false: \"%s\"\n", hold);
             break;
-        case #:
+        case 23:
             printf("equality test: \"%s\"\n", hold);
             break;
-        case #:
+        case 24:
             printf("inequality test: \"%s\"\n", hold);
             break;
-        case #:
+        case 25:
             printf("less than test: \"%s\"\n", hold);
             break;
-        case #:
+        case 26:
             printf("greater than test: \"%s\"\n", hold);
             break;
-        case #:
+        case 27:
             printf("less than or equal test: \"%s\"\n", hold);
             break;
-        case #:
+        case 28:
             printf("greater than or equal test: \"%s\"\n", hold);
             break;
-        case #:
+        case 29:
             printf("assignment: \"%s\"\n", hold);
             break;
-        case #:
+        case 30:
             printf("plus equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 31:
             printf("minus equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 32:
             printf("times equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 33:
             printf("divide equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 34:
             printf("mod equals \"%s\"\n", hold);
             break;
-        case #:
+        case 35:
             printf("shift right equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 36:
             printf("shift left equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 37:
             printf("bitwise AND equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 38:
             printf("bitwise XOR equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 39:
             printf("bitwise OR equals: \"%s\"\n", hold);
             break;
-        case #:
+        case 40:
             printf("AND/address operator: \"%s\"\n", hold);
             break;
-        case #:
+        case 41:
             printf("minus/subtract operator: \"%s\"\n", hold);
             break;
-        case #:
+        case 42:
             printf("multiply/dereference operator: \"%s\"\n", hold);
             break;
-        */
+        //operators over
+        case 43: 
+            printf("decimal integer: \"%s\"\n", hold);
+            break;
         default: // should never hit here
             break;
     }
