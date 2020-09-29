@@ -316,35 +316,39 @@ int main (int argc, char **argv) {
         //////////////////////////////////
 
         
-
+        //CASE 2
         // delim or if types mismatch
         // print token and reset variables
         // only does something if hold is storing chars
         if(strlen(hold)>0){
 
             //special case for operators
-            if( ((hold_type == 2) && (char_type != 2)) || ((whichOperator(last_held)!= -1) && (whichOperator(hold) == -1)) ){ 
+            //if current hold is not operator while last held is (for "+++" to become "++" and "+")
+            if( ((whichOperator(last_held)!= -1) && (whichOperator(hold) == -1)) ){ 
                 //get flag operator
-                flag = whichOperator(hold);
+                flag = whichOperator(last_held);
                 //print as normal
-                print(hold, flag);
+                print(last_held, flag);
 
-                //reset the values of hold and flag 
-                free(hold);
+                memmove(hold, hold + strlen(last_held), strlen(hold) - strlen(last_held));
+                //reset the values of last_held but keep hold and update values
                 free(last_held);
                 last_held = malloc(sizeof(char) * strlen(argv[1]));
-                hold = malloc(sizeof(char) * strlen(argv[1]));
-                flag = -1;
+                flag = whichOperator(hold);
                 count = 0;
                 
             //print if:
             //delim encountered
             //hold is word/number and operator encountered
             //hold is number and letter encountered(ignore for hex)
-            }else if( (isDelim(argv[1][i])) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45))) {
+            }else if( (char_type == -1) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) || ((hold_type == 2) && (char_type != 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45))) {
+            
+            if (hold_type == 2){
+                flag = whichOperator(hold);
+            }
+
             //print token
             print(hold, flag);
-
             //reset the values of hold and flag 
             free(hold);
             free(last_held);
@@ -357,41 +361,7 @@ int main (int argc, char **argv) {
             }
         }
         
-        //if hold is empty and current char is not delim
-        // we can add char to hold and specify hold_type
-        if(strlen(hold) == 0 && char_type != -1) {
-            
-            if (isLetter(argv[1][i]) ){
-                flag = 0;
-                hold_type = 0;
-            }else if ( isNumber(argv[1][i]) ){
-
-                //check if 0 for octal/hex case
-                if ((argv[1][i]) == '0'){
-                    hold_type = 1;
-                    flag = 45; //assume hex
-                    
-                }else{
-                    hold_type = 1;
-                    flag = 43; //otherwise set to dec
-                }
-            }else if (isOperator(argv[1][i]) ){
-                
-                //operator
-                flag = 1;
-                hold_type = 2;
-            }
-            /////////////just for debugging////////////////////
-           // printf("+%d",hold_type);
-            //printf(", flag: %d", flag);
-            //////////////////////////////////
-            
-            //asigns the first value and moves on (count starts at 0 and after this is 1)
-            hold[0] = argv[1][i];
-            count++;
-            continue;
-        } 
-
+        //CASE 3
         //if hold is not empty and current char is not delim
         // store hold in last_held + update hold (append char)
         if(strlen(hold) != 0 && char_type != -1) {
@@ -445,6 +415,42 @@ int main (int argc, char **argv) {
             if(argv[1][i + 1] == '\0') print(hold, flag);
             continue;
         }
+
+
+        //CASE 1
+         //if hold is empty and current char is not delim
+        // we can add char to hold and specify hold_type
+        if(strlen(hold) == 0 && char_type != -1) {
+            
+            if (isLetter(argv[1][i]) ){
+                flag = 0;
+                hold_type = 0;
+            }else if ( isNumber(argv[1][i]) ){
+
+                //check if 0 for octal/hex case
+                if ((argv[1][i]) == '0'){
+                    hold_type = 1;
+                    flag = 45; //assume hex
+                    
+                }else{
+                    hold_type = 1;
+                    flag = 43; //otherwise set to dec
+                }
+            }else if (isOperator(argv[1][i]) ){
+                
+                //operator
+                flag = 1;
+                hold_type = 2;
+            }
+            /////////////just for debugging////////////////////
+           // printf("+%d",hold_type);
+            //printf(", flag: %d", flag);
+            //////////////////////////////////
+            
+            //asigns the first value and moves on (count starts at 0 and after this is 1)
+            hold[0] = argv[1][i];
+            count++;
+        } 
 
 
     }
