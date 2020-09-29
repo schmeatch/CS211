@@ -411,15 +411,7 @@ int main (int argc, char **argv) {
             hold[count] = argv[1][i];
             count++;
 
-            // special case
-            if(argv[1][i + 1] == '\0') {
-                if (hold_type == 2){
-                    flag = whichOperator(hold);
-                }
-
-                print(hold, flag);
-            }
-            
+          
         }
 
 
@@ -458,7 +450,15 @@ int main (int argc, char **argv) {
             count++;
         } 
 
+          // special case if we hit end of input and hold is not empty
+            if(argv[1][i + 1] == '\0') {
+                if (hold_type == 2){
+                    flag = whichOperator(hold);
+                }
 
+                print(hold, flag);
+            }
+            
     }
 
     
