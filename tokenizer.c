@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -13,13 +14,13 @@
 // letter checker
 bool isLetter(char ch) {
     // uses the ASCII codes to compare and actually check if its a letter
-    if( !( ((ch > 'a') && (ch < 'z')) || ((ch > 'A') && (ch < 'Z')) ) )   return false;
+    if( !( ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) ) )   return false;
     return true;
 }
 // number check
 bool isNumber(char ch) {
     // uses the ASCII codes to compare and actually check if its a number
-    if( !( (ch > '0') && (ch < '9') )  )  return false;
+    if( !( (ch >= '0') && (ch <= '9') )  )  return false;
         return true;
 }
 //operator check
@@ -263,8 +264,18 @@ void print(char *hold, int flag) {
             printf("multiply/dereference operator: \"%s\"\n", hold);
             break;
         //operators over
+    
         case 43: 
             printf("decimal integer: \"%s\"\n", hold);
+            break;
+        case 44: 
+            printf("octal integer: \"%s\"\n", hold);
+            break;
+        case 45: 
+            printf("hexadecimal integer: \"%s\"\n", hold);
+            break;
+        case 46: 
+            printf("floating point: \"%s\"\n", hold);
             break;
         default: // should never hit here
             break;
@@ -279,7 +290,7 @@ int main (int argc, char **argv) {
     //hold/char types: 0-words, 1-nums, 2-ops -1 = delim
     int char_type;
     int flag;
-    int count = 1;
+    int count = 0;
     
     // to loop through every basic character (start small then expand)
     int i;
@@ -297,9 +308,11 @@ int main (int argc, char **argv) {
                 char_type = 2;
         }
         //////////////just for debugging///////////////////
-        //printf("(%c:",argv[1][i]);
+        //printf("\n %c",argv[1][i]);
+        //printf("(:%s)",hold);
         //printf("%ld)",strlen(hold));
         //printf("-%d",char_type);
+        //printf("(%d)", count);
         //////////////////////////////////
 
         
@@ -322,9 +335,13 @@ int main (int argc, char **argv) {
                 last_held = malloc(sizeof(char) * strlen(argv[1]));
                 hold = malloc(sizeof(char) * strlen(argv[1]));
                 flag = -1;
-                count = 1;
+                count = 0;
                 
-            }else if(isDelim(argv[1][i]) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) || ((hold_type == 0) && (char_type == 1))) {
+            //print if:
+            //delim encountered
+            //hold is word/number and operator encountered
+            //hold is number and letter encountered(ignore for hex)
+            }else if( (isDelim(argv[1][i])) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45))) {
             //print token
             print(hold, flag);
 
@@ -334,7 +351,7 @@ int main (int argc, char **argv) {
             last_held = malloc(sizeof(char) * strlen(argv[1]));
             hold = malloc(sizeof(char) * strlen(argv[1]));
             flag = -1;
-            count = 1;
+            count = 0;
             
             
             }
@@ -348,8 +365,16 @@ int main (int argc, char **argv) {
                 flag = 0;
                 hold_type = 0;
             }else if ( isNumber(argv[1][i]) ){
-                flag = 43;
-                hold_type = 1;
+
+                //check if 0 for octal/hex case
+                if ((argv[1][i]) == '0'){
+                    hold_type = 1;
+                    flag = 45; //assume hex
+                    
+                }else{
+                    hold_type = 1;
+                    flag = 43; //otherwise set to dec
+                }
             }else if (isOperator(argv[1][i]) ){
                 
                 //operator
@@ -357,17 +382,61 @@ int main (int argc, char **argv) {
                 hold_type = 2;
             }
             /////////////just for debugging////////////////////
-            //printf("+%d",hold_type);
+           // printf("+%d",hold_type);
+            //printf(", flag: %d", flag);
             //////////////////////////////////
             
-            //asigns the first value and moves on
+            //asigns the first value and moves on (count starts at 0 and after this is 1)
             hold[0] = argv[1][i];
+            count++;
             continue;
         } 
 
         //if hold is not empty and current char is not delim
         // store hold in last_held + update hold (append char)
         if(strlen(hold) != 0 && char_type != -1) {
+            
+            // if 0 was passed in as first char of a token- check next char for possible: octal(44), hex(45), or dec(43)
+            if (flag == 45 && count == 1){
+                if ( (argv[1][i] >= '0') && (argv[1][i] <= '7') ){
+                    //octal accepts any numbers after inital 0: 0-1
+                    flag = 44; 
+                }else if ( (argv[1][i] == 'x') ||  (argv[1][i] == 'X') ){
+                    //hex next char has to be X or x
+                    flag = 45;
+                }else if ( (argv[1][i] == '8') ||  (argv[1][i] == '9') ){
+                    //decimal if following char is 8 or 9 because that breaks the pattern for octal
+                    flag = 43;              
+                }
+            }
+
+            //special cases for octal/hex after the first nonzero
+            if (flag == 44 && count > 1){
+                //if octal can only recieve numbers <= 7 to continue octal pattern/otherwise it becomes decimal num
+                if ( (argv[1][i] == '8') ||  (argv[1][i] == '9') ){
+                    flag = 43;
+                }
+            }else if (flag == 45 && count >1){
+                //if hex pattern has been established (0x or 0X), the next chars can only be 0-9 or letters A-F
+                if( ( ((argv[1][i] >= 'g') && (argv[1][i] <= 'z')) || ((argv[1][i] >= 'G') && (argv[1][i] <= 'Z')) ) ){
+                    //(**if g-z encountered): print 0 as decimal, change flag/type to word
+                    print("0",43);
+                    flag = 0;
+                    hold_type = 0;
+                    memmove(hold, hold+1, strlen(hold));
+                    count--;
+                    
+                }
+            }
+
+
+
+            ////////for debugging/////////////////////
+            //printf(", flag: %d", flag);
+           // printf("(c:%d)",count);
+            ////////////////////////////////////
+
+
             last_held= strcpy(last_held,hold);
             hold[count] = argv[1][i];
             count++;
