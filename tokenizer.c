@@ -277,6 +277,8 @@ void print(char *hold, int flag) {
         case 46: 
             printf("floating point: \"%s\"\n", hold);
             break;
+        case 47: // floating point but with e
+            printf("floating point"" \"%s\"\n", hold);
         default: // should never hit here
             break;
     }
@@ -296,9 +298,8 @@ int main (int argc, char **argv) {
     int i;
     for(i = 0; argv[1][i] != '\0'; i++) {
 
- 
         //for every char get char type
-        if ( isLetter(argv[1][i]) ){
+        if (isLetter(argv[1][i]) ){
                 char_type = 0;
         }else if ( isNumber(argv[1][i]) ){
                 char_type = 1;
@@ -307,24 +308,18 @@ int main (int argc, char **argv) {
         }else{ //operator
                 char_type = 2;
         }
-        //////////////just for debugging///////////////////
-        //printf("\n %c",argv[1][i]);
-        //printf("(:%s)",hold);
-        //printf("%ld)",strlen(hold));
-        //printf("-%d",char_type);
-        //printf("(%d)", count);
-        //////////////////////////////////
-
         
+
         //CASE 2
         // delim or if types mismatch
         // print token and reset variables
         // only does something if hold is storing chars
-        if(strlen(hold)>0){
+        if(strlen(hold) > 0){
 
             //special case for operators
             //if current hold is not operator while last held is (for "+++" to become "++" and "+")
-            if( ((whichOperator(last_held)!= -1) && (whichOperator(hold) == -1)) ){ 
+            if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
+                
                 //get flag operator
                 flag = whichOperator(last_held);
                 //print as normal
@@ -341,31 +336,83 @@ int main (int argc, char **argv) {
             //delim encountered
             //hold is word/number and operator encountered
             //hold is number and letter encountered(ignore for hex)
-            }else if( (char_type == -1) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) || ((hold_type == 2) && (char_type != 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45))) {
+            } else if( (char_type == -1) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2)) && argv[1][i] != '.' || ((hold_type == 2) && (char_type != 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e'))) {
+                if (hold_type == 2){
+                    flag = whichOperator(hold);
+                }
+
+                //print token
+                print(hold, flag);
+                //reset the values of hold and flag 
+                free(hold);
+                free(last_held);
+                last_held = malloc(sizeof(char) * strlen(argv[1]));
+                hold = malloc(sizeof(char) * strlen(argv[1]));
+                flag = -1;
+                count = 0;
             
-            if (hold_type == 2){
-                flag = whichOperator(hold);
             }
 
-            //print token
-            print(hold, flag);
-            //reset the values of hold and flag 
-            free(hold);
-            free(last_held);
-            last_held = malloc(sizeof(char) * strlen(argv[1]));
-            hold = malloc(sizeof(char) * strlen(argv[1]));
-            flag = -1;
-            count = 0;
-            
-            
-            }
         }
         
         //CASE 3
         //if hold is not empty and current char is not delim
         // store hold in last_held + update hold (append char)
         if(strlen(hold) != 0 && char_type != -1) {
+
+
+            // this case is for floats that encounter a second . (i.e 1.42.)
+            // we will print out the current hold then empty hold
+            // we print out the single . and move on
+            if(hold_type == 1 && argv[1][i] == '.' && flag == 46) {
+                print(hold, flag);
+                free(hold);
+                hold = malloc(sizeof(char) * strlen(argv[1]));
+                print(".", 5);
+                count = 0;
+                continue;
+
+            }
+
+            // exp. case 
+            if(hold_type == 1 && argv[1][i] == 'e' && flag == 46) {
+                flag = 47; // float case with exp.
+                hold[count] = argv[1][i];
+                count++;
+                continue;
+            }
+
+            // encounter the second exponent in a pre-existing floating point number, and you reset it
+            if(hold_type == 1 && argv[1][i] == 'e' && flag == 47) {
+                print(hold, flag);
+                free(hold);
+                hold = malloc(sizeof(char) * strlen(argv[1]));
+                count = 0;
+                hold[count] = argv[1][i];
+                count++;
+                hold_type = 0;
+                flag = 0;
+
+                // special case
+                if(argv[1][i + 1] == '\0') {
+                    if (hold_type == 2){
+                        flag = whichOperator(hold);
+                    }
+                    print(hold, flag);
+                }
+
+                continue;
+
+
+            }
+
+            // floats
+            if(hold_type == 1 && argv[1][i] == '.' && flag != 46) {
+                flag = 46;
+            }
+
             
+
             // if 0 was passed in as first char of a token- check next char for possible: octal(44), hex(45), or dec(43)
             if (flag == 45 && count == 1){
                 if ( (argv[1][i] >= '0') && (argv[1][i] <= '7') ){
@@ -399,32 +446,30 @@ int main (int argc, char **argv) {
                 }
             }
 
-
-
-            ////////for debugging/////////////////////
-            //printf(", flag: %d", flag);
-           // printf("(c:%d)",count);
-            ////////////////////////////////////
-
-
             last_held= strcpy(last_held,hold);
             hold[count] = argv[1][i];
             count++;
 
-          
-        }
+            // special case
+            if(argv[1][i + 1] == '\0') {
+                if (hold_type == 2){
+                    flag = whichOperator(hold);
+                }
+                print(hold, flag);
+            }
 
+
+            
+        }
 
         //CASE 1
          //if hold is empty and current char is not delim
         // we can add char to hold and specify hold_type
         if(strlen(hold) == 0 && char_type != -1) {
-            
             if (isLetter(argv[1][i]) ){
                 flag = 0;
                 hold_type = 0;
             }else if ( isNumber(argv[1][i]) ){
-
                 //check if 0 for octal/hex case
                 if ((argv[1][i]) == '0'){
                     hold_type = 1;
@@ -435,30 +480,29 @@ int main (int argc, char **argv) {
                     flag = 43; //otherwise set to dec
                 }
             }else if (isOperator(argv[1][i]) ){
-                
                 //operator
                 flag = 1;
                 hold_type = 2;
             }
-            /////////////just for debugging////////////////////
-           // printf("+%d",hold_type);
-            //printf(", flag: %d", flag);
-            //////////////////////////////////
-            
+
             //asigns the first value and moves on (count starts at 0 and after this is 1)
             hold[0] = argv[1][i];
             count++;
-        } 
 
-          // special case if we hit end of input and hold is not empty
+            // special case
             if(argv[1][i + 1] == '\0') {
                 if (hold_type == 2){
                     flag = whichOperator(hold);
+                } else if(hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
+                    flag = 43;
                 }
 
                 print(hold, flag);
             }
-            
+        
+        } 
+
+
     }
 
     
