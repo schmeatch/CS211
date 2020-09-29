@@ -315,11 +315,10 @@ int main (int argc, char **argv) {
         // print token and reset variables
         // only does something if hold is storing chars
         if(strlen(hold) > 0){
-
             //special case for operators
             //if current hold is not operator while last held is (for "+++" to become "++" and "+")
             if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
-                
+      
                 //get flag operator
                 flag = whichOperator(last_held);
                 //print as normal
@@ -360,30 +359,28 @@ int main (int argc, char **argv) {
         // store hold in last_held + update hold (append char)
         if(strlen(hold) != 0 && char_type != -1) {
 
-
             // this case is for floats that encounter a second . (i.e 1.42.)
             // we will print out the current hold then empty hold
             // we print out the single . and move on
-            if(hold_type == 1 && argv[1][i] == '.' && flag == 46) {
+
+            
+
+            // floats
+            if(hold_type == 1 && argv[1][i] == '.' && flag == 43 && argv[1][i+1] != '\0') {
+                flag = 46;
+            } else if(hold_type == 1 && argv[1][i] == '.' && flag == 46) {
                 print(hold, flag);
                 free(hold);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
                 print(".", 5);
                 count = 0;
                 continue;
-
-            }
-
-            // exp. case 
-            if(hold_type == 1 && argv[1][i] == 'e' && flag == 46) {
+            } else if(hold_type == 1 && argv[1][i] == 'e' && flag == 46) {
                 flag = 47; // float case with exp.
                 hold[count] = argv[1][i];
                 count++;
                 continue;
-            }
-
-            // encounter the second exponent in a pre-existing floating point number, and you reset it
-            if(hold_type == 1 && argv[1][i] == 'e' && flag == 47) {
+            } else if(hold_type == 1 && argv[1][i] == 'e' && flag == 47) {
                 print(hold, flag);
                 free(hold);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
@@ -400,17 +397,9 @@ int main (int argc, char **argv) {
                     }
                     print(hold, flag);
                 }
-
                 continue;
-
-
             }
-
-            // floats
-            if(hold_type == 1 && argv[1][i] == '.' && flag != 46) {
-                flag = 46;
-            }
-
+            
             
 
             // if 0 was passed in as first char of a token- check next char for possible: octal(44), hex(45), or dec(43)
@@ -433,7 +422,7 @@ int main (int argc, char **argv) {
                 if ( (argv[1][i] == '8') ||  (argv[1][i] == '9') ){
                     flag = 43;
                 }
-            }else if (flag == 45 && count >1){
+            }else if (flag == 45 && count > 1){
                 //if hex pattern has been established (0x or 0X), the next chars can only be 0-9 or letters A-F
                 if( ( ((argv[1][i] >= 'g') && (argv[1][i] <= 'z')) || ((argv[1][i] >= 'G') && (argv[1][i] <= 'Z')) ) ){
                     //(**if g-z encountered): print 0 as decimal, change flag/type to word
