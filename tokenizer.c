@@ -311,7 +311,6 @@ int main (int argc, char **argv) {
         }
 
         
-
         //CASE 2
         // delim or if types mismatch
         // print token and reset variables
@@ -319,7 +318,7 @@ int main (int argc, char **argv) {
         if(strlen(hold) > 0){
             //special case for operators
             //if current hold is not operator while last held is (for "+++" to become "++" and "+")
-            if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
+            if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
                 //get flag operator
                 flag = whichOperator(last_held);
                 //print as normal
@@ -346,7 +345,7 @@ int main (int argc, char **argv) {
             //hold is float and non period operator is encountered
             //hold is number and letter encountered(ignore for hex)
             //|| (flag == 46 && (char_type == 2) &&  argv[1][i] != '.')
-            } else if( (char_type == -1) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2))  || ((hold_type == 2) && (char_type != 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e'))) {
+            } else if((char_type == -1) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2) && argv[1][i] != '.')  || ((hold_type == 2) && (char_type != 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e'))) {
                 if (hold_type == 2){
                     flag = whichOperator(hold);
                 }
@@ -373,8 +372,6 @@ int main (int argc, char **argv) {
             // this case is for floats that encounter a second . (i.e 1.42.)
             // we will print out the current hold then empty hold
             // we print out the single . and move on
-
-            
 
             // float cases
             //if currently decimal and '.' encountered change to float
@@ -453,11 +450,6 @@ int main (int argc, char **argv) {
             last_held= strcpy(last_held,hold);
             hold[count] = argv[1][i];
             count++;
-
-        
-
-
-
             
         }
 
