@@ -345,7 +345,11 @@ int main (int argc, char **argv) {
             //hold is float and non period operator is encountered
             //hold is number and letter encountered(ignore for hex)
             //|| (flag == 46 && (char_type == 2) &&  argv[1][i] != '.')
-            } else if((char_type == -1) || ((hold_type == 0) && (char_type == 2)) || ((hold_type == 1) && (char_type == 2) && argv[1][i] != '.')  || ((hold_type == 2) && (char_type != 2)) || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e'))) {
+            } else if((hold_type == 1) && (flag ==43) && (char_type == 0) 
+                    ||(char_type == -1) || ((hold_type == 0) && (char_type == 2)) 
+                    || ((hold_type == 1) && (char_type == 2) && argv[1][i] != '.')  
+                    || ((hold_type == 2) && (char_type != 2)) 
+                    || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44))) {
                 if (hold_type == 2){
                     flag = whichOperator(hold);
                 }
