@@ -298,7 +298,6 @@ int main (int argc, char **argv) {
     // to loop through every basic character (start small then expand)
     int i;
     for(i = 0; argv[1][i] != '\0'; i++) {
-
         //for every char get char type
         if (isLetter(argv[1][i]) ){
                 char_type = 0;
@@ -310,7 +309,6 @@ int main (int argc, char **argv) {
                 char_type = 2;
         }
 
-        
         //CASE 2
         // delim or if types mismatch
         // print token and reset variables
@@ -319,6 +317,7 @@ int main (int argc, char **argv) {
             //special case for operators
             //if current hold is not operator while last held is (for "+++" to become "++" and "+")
             if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
+
                 //get flag operator
                 flag = whichOperator(last_held);
                 //print as normal
@@ -345,11 +344,19 @@ int main (int argc, char **argv) {
             //hold is float and non period operator is encountered
             //hold is number and letter encountered(ignore for hex)
             //|| (flag == 46 && (char_type == 2) &&  argv[1][i] != '.')
-            } else if((hold_type == 1) && (flag ==43) && (char_type == 0) 
-                    ||(char_type == -1) || ((hold_type == 0) && (char_type == 2)) 
-                    || ((hold_type == 1) && (char_type == 2) && argv[1][i] != '.')  
-                    || ((hold_type == 2) && (char_type != 2)) 
-                    || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44))) {
+            } else if((hold_type == 1) && (flag == 43) && (char_type == 0) // case used for letters after numerals
+                    || (char_type == -1)  // case used for delims
+                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && (argv[1][i+1] == '\0')) // case for 2.1e
+                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && (argv[1][i+1] == '-') && (argv[1][i+2] == '\0')) // case for 2.1e-
+                    || ((hold_type == 0) && (char_type == 2)) // case used for symbols after letters
+                    || ((hold_type == 1) && (argv[1][i] == '.') && (argv[1][i + 1] == '\0')) // case used for "2." 
+                    || ((hold_type == 1) && (flag == 43) && (char_type == 2) && (argv[1][i] != '.'))  // case used for symbols after numerals
+                    || ((hold_type == 1) && (flag == 47) && (char_type == 2) && (argv[1][i] == '-') && (argv[1][i-1] != 'e')) // case for - in floating that isnt after 
+                    || ((hold_type == 1) && (flag == 47) && (char_type == 2) && (argv[1][i] == '-') && (argv[1][i+1] == '\0'))
+                    || ((hold_type == 2) && (char_type != 2))  // case used for non-symbols after symbols
+                    || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44))) { // case used for words after floating values that aren't e thus not accepted
+
+
                 if (hold_type == 2){
                     flag = whichOperator(hold);
                 }
@@ -373,6 +380,7 @@ int main (int argc, char **argv) {
         // store hold in last_held + update hold (append char)
         if(strlen(hold) != 0 && char_type != -1) {
 
+
             // this case is for floats that encounter a second . (i.e 1.42.)
             // we will print out the current hold then empty hold
             // we print out the single . and move on
@@ -390,7 +398,7 @@ int main (int argc, char **argv) {
                 count = 0;
                 continue;
             //if  already float and encounter e : change print type to second type float
-            } else if(hold_type == 1 && argv[1][i] == 'e' && flag == 46) {
+            } else if(hold_type == 1 && argv[1][i] == 'e' && flag == 46 && argv[1][i+1] != '\0') {
                 flag = 47; // float case with exp.
                 hold[count] = argv[1][i];
                 count++;
