@@ -351,7 +351,7 @@ int main (int argc, char **argv) {
                 flag = whichOperator(hold);
                 count = 1;
 
-            // condition 1b:
+            // condition 1b: (corner cases)
             /*
             In this condition, the current token will be printed if a delimiter or a pattern mismatch occurs is encountered. 
             This will accounts for cases such as where the current token is a word/number and a operator is encountered or hold is a float and a non-period operator encountered.
@@ -359,11 +359,10 @@ int main (int argc, char **argv) {
             } else if((hold_type == 1) && (flag == 43) && (char_type == 0) // special case 1: alphabetical characters are encountered while the current token type is numeric.
                     // special case 2: delimiters are encountered
                     || (char_type == -1)  
-                    // special case 
-                    // special case 3.1: floating values are raised to the value of e () but there is nothing after e. (i.e 2.0e)
-                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && (!(isNumber(argv[1][i+1])) || (argv[1][i+1] == '\0'))) 
-                    // special case 3.2: floating values are raised to the value of e (-) but there is nothing after the e- (i.e 2.0e-) or a non-Numeric chacter is after e- (i.e 2.0e-A)
+                    // special case 3.1: floating values are raised to the value of e (-) but there is nothing after the e- (i.e 2.0e-) or a non-Numeric chacter is after e- (i.e 2.0e-A)
                     || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && (argv[1][i+1] == '-') && ((argv[1][i+2] == '\0') || !(isNumber(argv[1][i+2]))))  
+                    // special case 3.2: floating values are raised to the value of e () but there is nothing after e. (i.e 2.0e)
+                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && ((isLetter(argv[1][i+1])) || (argv[1][i+1] == '\0')))     
                     // special case 3.3: the operation "." is encountered while the token flag are integers thus making it a floating value but the character after "." is non-numeric.
                     || ((hold_type == 1) && (argv[1][i] == '.') && ((argv[1][i + 1] == '\0') || !(isNumber(argv[1][i+1])))) 
                     // special case 3.4: the operator "-" is encountered for floating values but it is not placed after the "e". (i.e 2.0e1-3)
@@ -372,6 +371,8 @@ int main (int argc, char **argv) {
                     || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44)) 
                     // special case 3.6 : operators are encountered after floats
                     || ((hold_type == 1) && (char_type == 2) && ((flag == 46) || (flag == 46)) && (isOperator(argv[1][i])))
+                    // special case 3.2: floating values are raised to the value of e () but there is a operator after e that isn't -
+                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && ((isOperator(argv[1][i+1])) && (argv[1][i+1] != '-') || (argv[1][i+1] == '\0')))  
                     // special case 4: operational characters are encountered while the current token type is alphabetical characters.
                     || ((hold_type == 0) && (char_type == 2)) 
                     // special case 5: operational characters are encountered while the current token type are numeric characters.
