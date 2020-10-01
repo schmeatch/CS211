@@ -371,7 +371,7 @@ int main (int argc, char **argv) {
                     || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44)) 
                     // special case 3.6 : operators are encountered after floats
                     || ((hold_type == 1) && (char_type == 2) && ((flag == 46) || (flag == 46)) && (isOperator(argv[1][i])))
-                    // special case 3.2: floating values are raised to the value of e () but there is a operator after e that isn't -
+                    // special case 3.7: floating values are raised to the value of e () but there is a operator after e that isn't -
                     || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && ((isOperator(argv[1][i+1])) && (argv[1][i+1] != '-') || (argv[1][i+1] == '\0')))  
                     // special case 4: operational characters are encountered while the current token type is alphabetical characters.
                     || ((hold_type == 0) && (char_type == 2)) 
