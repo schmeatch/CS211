@@ -355,7 +355,6 @@ int main (int argc, char **argv) {
             /*
             In this condition, the current token will be printed if a delimiter or a pattern mismatch occurs is encountered. 
             This will accounts for cases such as where the current token is a word/number and a operator is encountered or hold is a float and a non-period operator encountered.
-
             -- focuses on printing out the different edge cases
             */
             } else if((hold_type == 1) && (flag == 43) && (char_type == 0) // special case 1: alphabetical characters are encountered while the current token type is numeric.
@@ -409,7 +408,6 @@ int main (int argc, char **argv) {
         // Condition 2:
         /*
         This condition will be triggered if the current contents of the token are not empty while the current chraacter is not a delim. This would cause the character to be appended to the token should it hit the proper conditions.
-
         -- this condition primarily focuses on numeric values such as decimal, floats, hexademical, octal
         */
         if(strlen(hold) != 0 && char_type != -1) {
