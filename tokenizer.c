@@ -360,19 +360,19 @@ int main (int argc, char **argv) {
                     // special case 2: delimiters are encountered
                     || (char_type == -1)  
                     // special case 3.1: floating values are raised to the value of e (-) but there is nothing after the e- (i.e 2.0e-) or a non-Numeric chacter is after e- (i.e 2.0e-A)
-                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && (argv[1][i+1] == '-') && ((argv[1][i+2] == '\0') || !(isNumber(argv[1][i+2]))))  
+                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 46) && (argv[1][i] == 'e') && (argv[1][i+1] == '-') && ((argv[1][i+2] == '\0') || !(isNumber(argv[1][i+2]))))  
                     // special case 3.2: floating values are raised to the value of e () but there is nothing after e. (i.e 2.0e)
-                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && ((isLetter(argv[1][i+1])) || (argv[1][i+1] == '\0')))     
+                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 46) && (argv[1][i] == 'e') && ((isLetter(argv[1][i+1])) || (argv[1][i+1] == '\0')))     
                     // special case 3.3: the operation "." is encountered while the token flag are integers thus making it a floating value but the character after "." is non-numeric.
-                    || ((hold_type == 1) && (argv[1][i] == '.') && ((argv[1][i + 1] == '\0') || !(isNumber(argv[1][i+1])))) 
+                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (argv[1][i] == '.') && ((argv[1][i + 1] == '\0') || !(isNumber(argv[1][i+1])))) 
                     // special case 3.4: the operator "-" is encountered for floating values but it is not placed after the "e". (i.e 2.0e1-3)
-                    || ((hold_type == 1) && (flag == 47) && (char_type == 2) && (argv[1][i] == '-') && (argv[1][i-1] != 'e'))
+                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 47) && (char_type == 2) && (argv[1][i] == '-') && (argv[1][i-1] != 'e'))
                     // special case 3.5: alphabetical characters other than e are encountered in floating values (i.e 2.1b3)  
-                    || ((hold_type == 1) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44)) 
+                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44)) 
                     // special case 3.6 : operators are encountered after floats
-                    || ((hold_type == 1) && (char_type == 2) && ((flag == 46) || (flag == 46)) && (isOperator(argv[1][i])))
+                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (char_type == 2) && ((flag == 46) || (flag == 46)) && (isOperator(argv[1][i])))
                     // special case 3.7: floating values are raised to the value of e () but there is a operator after e that isn't -
-                    || ((hold_type == 1) && (flag == 46) && (argv[1][i] == 'e') && ((isOperator(argv[1][i+1])) && (argv[1][i+1] != '-') || (argv[1][i+1] == '\0')))  
+                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 46) && (argv[1][i] == 'e') && ((isOperator(argv[1][i+1])) && (argv[1][i+1] != '-') || (argv[1][i+1] == '\0')))  
                     // special case 4: operational characters are encountered while the current token type is alphabetical characters.
                     || ((hold_type == 0) && (char_type == 2)) 
                     // special case 5: operational characters are encountered while the current token type are numeric characters.
@@ -380,8 +380,9 @@ int main (int argc, char **argv) {
                     // <><><><><><><><><><><><><><><><><><><><><><>
                     || ((hold_type == 1) && (flag == 47) && (char_type == 2) && (argv[1][i] == '-') && (argv[1][i+1] == '\0')) 
                     // special case 7: non-operational characters are encountered while the current token type are operational characters.
-                    || ((hold_type == 2) && (char_type != 2))) { 
-
+                    || ((hold_type == 2) && (char_type != 2))
+                    // error case where . got appended to a hexadecimal
+                    || ((hold_type == 1) && (flag == 45) && (isOperator(argv[1][i])))){ 
 
                 // determines which operator the current token type is if it is of type operational characters.
                 if (hold_type == 2){
@@ -412,7 +413,7 @@ int main (int argc, char **argv) {
             // Condition block: Token is current a numeric character string --> it encounters a ".". These conditions will determine whether it becomes a floating value or it prints an integer and a operational character (i.e 2 . )
 
             // default case for floating values. if a "." is encountered 
-            if(hold_type == 1 && argv[1][i] == '.' && flag == 43 && argv[1][i+1] != '\0') {
+            if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44) && argv[1][i+1] != '\0') {
                 flag = 46;
             // special case : the token is currently a float and it encounters another '.'
             } else if(hold_type == 1 && argv[1][i] == '.' && flag == 46) {
