@@ -273,7 +273,7 @@ void print(char *hold, int flag) {
             break;
         // special case for floating values where it contains an e (i.e 3232.32e-10)
         case 47: 
-            printf("floating point"" \"%s\"\n", hold);
+            printf("floating point:"" \"%s\"\n", hold);
         default: 
             break;
     }
