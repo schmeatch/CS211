@@ -298,6 +298,8 @@ int main (int argc, char **argv) {
 
     // used to which token we're going to be printing (i.e right bracket... integer... floating value)
     int flag;
+    int expFlag = -1;
+    int negativeExpFlag = -1;
 
     // variable is used to keep track of where the character will be assigned in hold
     int count = 0;
@@ -316,6 +318,9 @@ int main (int argc, char **argv) {
         }else{ //operator
                 char_type = 2;
         }
+
+        printf("%s\n", hold);
+
 
         // condition 1a:
         /*
