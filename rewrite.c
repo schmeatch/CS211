@@ -344,7 +344,6 @@ int main (int argc, char **argv) {
                     toBuildExp = 2;
                 // other just print the token and then reset it
                 } else {
-                    if(i == 1) printf("procced");
                     print(hold, flag);
                     reset = true;
                 }
@@ -542,7 +541,6 @@ int main (int argc, char **argv) {
 
         // special case hits end
         if(argv[1][i + 1] == '\0') {
-            if(i == 7) printf("%s\n", hold);
             
             if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
                 //get flag operator
