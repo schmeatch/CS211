@@ -337,13 +337,14 @@ int main (int argc, char **argv) {
 
             
             // default case for floating values. if a "." is encountered 
-            if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44) && argv[1][i+1] != '\0') {
+            if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44)) {
                 // if its a number, we want to change it from a decimal integer to a floating point
-                if(isNumber(argv[1][i+1])) {
+                if(isNumber(argv[1][i+1])  && (argv[1][i+1] != '\0')) {
                     flag = 46;
                     toBuildExp = 2;
                 // other just print the token and then reset it
                 } else {
+                    if(i == 1) printf("procced");
                     print(hold, flag);
                     reset = true;
                 }
@@ -365,7 +366,6 @@ int main (int argc, char **argv) {
                     built = false;
                     expFlag = true;
                 }
-            // token terminator. 
             }
             
         
@@ -380,7 +380,6 @@ int main (int argc, char **argv) {
                 continue;
             } 
 
-        
             if(reset) {
                 free(hold);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
@@ -395,6 +394,7 @@ int main (int argc, char **argv) {
                 if(argv[1][i+1] == '\0') {
                     if(char_type == 2) flag = whichOperator(hold);
                     print(hold, flag);
+                    continue;
                 }
             }
             
