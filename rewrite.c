@@ -26,7 +26,7 @@ bool isOperator(char ch) {
 // delim check
 bool isDelim(char ch) {
     // different white space coniditons
-    if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f') return true;
+    if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\0') return true;
     return false;
 }
 
@@ -320,8 +320,8 @@ int main (int argc, char **argv) {
                 char_type = -1;
         }else{ //operator
                 char_type = 2;
-        }
-        
+        }    
+
         // Condition 2:
         /*
         This condition is tailored towards floating values, hexadecimals. and octal integers.
@@ -332,10 +332,20 @@ int main (int argc, char **argv) {
         - <skylar add more info>
         */
 
-
+       
         if(strlen(hold) != 0 && char_type != -1) {
 
+            if(((hold_type == 0) && ((char_type == 0) || (char_type == 1))) || (hold_type == 1) && (flag == 43) && (char_type == 1)) {
+                hold[count] = argv[1][i];
+                if(argv[1][i+1] == '\0') {
+                    print(hold, flag);
+                    continue;
+                }
+                count++;
+                continue;
+            } 
             
+    
             // default case for floating values. if a "." is encountered 
             if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44)) {
                 // if its a number, we want to change it from a decimal integer to a floating point
@@ -343,14 +353,17 @@ int main (int argc, char **argv) {
                     flag = 46;
                     toBuildExp = 2;
                 // other just print the token and then reset it
-                } else {
+                } else if(!(isNumber(argv[1][i+1])) || (argv[1][i] == '\0')){
                     print(hold, flag);
                     reset = true;
                 }
             // case (floating point with e): handles the corner cases involving 'e' | '-' 
-            } else if((hold_type == 1) && (argv[1][i] == 'e') && (flag == 46) && (argv[1][i+1]) != '\0') {
-                
-                if((isLetter(argv[1][i+1])) || ((isOperator(argv[1][i+1]) && (argv[1][i+1] != '-')))  || ((argv[1][i+1] == '-') && !(isNumber(argv[1][i+2])))) {
+            } else if((hold_type == 1) && (argv[1][i] == 'e') && (flag == 46)) {
+                if((argv[1][i+1] == '\0')
+                || (isLetter(argv[1][i+1])) 
+                || ((isOperator(argv[1][i+1]) && (argv[1][i+1] != '-')))  
+                || ((argv[1][i+1] == '-') && !(isNumber(argv[1][i+2])))
+                || ((argv[1][i+1] == '-') && (argv[1][i+2] == '\0'))) {
                     print(hold, flag);
                     reset = true;
                 } else if( (argv[1][i+1] == '-') && (isNumber(argv[1][i+2])) ) {
@@ -367,7 +380,6 @@ int main (int argc, char **argv) {
                 }
             }
             
-        
             if(toBuildExp > 0 || ((flag == 46 || flag == 47) && (isNumber(argv[1][i])))) {
                 hold[count] = argv[1][i];
                 count++;
@@ -389,14 +401,20 @@ int main (int argc, char **argv) {
                 if(char_type == 2) flag = whichOperator(hold);
                 count++;
                 reset = false;
-
                 if(argv[1][i+1] == '\0') {
                     if(char_type == 2) flag = whichOperator(hold);
                     print(hold, flag);
                     continue;
                 }
+
+                continue;
+
             }
+
+    
             
+            
+            /*
             // if 0 was passed in as first char of a token- check next char for possible: octal(44), hex(45), or dec(43)
             if (flag == 45 && count == 1){
                 if ( (argv[1][i] >= '0') && (argv[1][i] <= '7') ){
@@ -428,10 +446,9 @@ int main (int argc, char **argv) {
                     count--;
                     
                 }
-            }
-
+            }*/
             
-            last_held= strcpy(last_held,hold);
+            //last_held= strcpy(last_held,hold);
             /*hold[count] = argv[1][i];
             count++;*/
 
@@ -445,8 +462,10 @@ int main (int argc, char **argv) {
         The current token (hold) will be printed to which then the values of the current token (hold) will be reset.
         It only does something if the current token is not empty.
         */
-
+       
+       
         if(strlen(hold) > 0){
+
 
             // operator case: if the current token (hold) type is not a operator while the last_hold type is. This is used for cases where (+++) becomes ("++") and ("+").
             if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
@@ -482,21 +501,21 @@ int main (int argc, char **argv) {
             */
             } else if( (char_type == -1) // delimiter case
             // non-numeric values after a token type 1 (integers)
-            || ((hold_type == 1) && (flag == 43) && (isNumber(argv[1][i])))
+            || ((hold_type == 1) && (flag == 43) && !(isNumber(argv[1][i])))
             // operational characters after a token type 0 (word)
             || ((hold_type == 0) && (flag == 0) && (isOperator(argv[1][i])))
             // non-operational characters after a token type 2 (operators)
+            || ((hold_type == 2) && (isOperator(argv[1][i])))
             || ((hold_type == 2) && !(isOperator(argv[1][i])))
             // floating cases:
             || ((flag == 46 || flag == 47) && (built = true) && !(isNumber(argv[1][i])))
+         
             ) { 
-
-    
-
                 if (hold_type == 2) flag = whichOperator(hold);
                 print(hold, flag);
                 free(hold);
                 free(last_held);
+
                 last_held = malloc(sizeof(char) * strlen(argv[1]));
                 hold = malloc(sizeof(char) * strlen(argv[1]));
                 flag = -1;
@@ -506,11 +525,13 @@ int main (int argc, char **argv) {
 
         }
 
+    
         // Condition 3:
         /*
         This condition will be the first condition should the token be empty. It will append in the current character at the first slot and then determine the possible flag values of the token.
         */
         if(strlen(hold) == 0 && char_type != -1) {
+            
             if (isLetter(argv[1][i]) ){
                 flag = 0;
                 hold_type = 0;
@@ -538,6 +559,7 @@ int main (int argc, char **argv) {
         
             
         } 
+        
 
         // special case hits end
         if(argv[1][i + 1] == '\0') {
