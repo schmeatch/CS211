@@ -1,0 +1,59 @@
+[INPUT][OUTPUT]
+
+CASE SPECIFC TEST CASES FOR FLOATING VALUES:
+[./tokenizer "2.10"]     [floating point: "2.10"]
+[./tokenizer "2."]       [decimal integer : "2" | structure member: "."]
+[./tokenizer "2.10e"]    [floating point: "2.10" | word: "e"]
+[./tokenizer "2.10e-"]   [floating point: "2.10" | word: "e" | minus/subtract operator: "-"]
+[./tokenizer "2.10e10"]  [floating point: "2.10e10"]
+[./tokenizer "2.10e10-"] [floating point: "2.10e10" | minus/subtract operator: "-"]
+[./tokenizer "2.10e-21"] [floating point: "2.10e-21"]
+[./tokenizer "2.ABC32"]  [decimal integer: "2" | structure member: "." | word: "ABC32"]
+[./tokenizer ".3230e10"] [structure member: "." | decimal integer: "3230" | word: "e10"]
+[./tokenizer "A.90e10"]  [word: "A" | structure member: "." | decimal integer: "90" | word: "e10"]
+[./tokenizer "2.[]^"]    [decimal integer: "2" | structure member: "." | left bracket: "[" | right bracket: "]" | bitwise XOR: "^"]
+[./tokenizer "2.3[]^"]   [floating point: "2.3" | left bracket: "[" | right bracket: "]" | bitwise XOR: "^"]
+<-------------------------------- to add more once skyler looks at this cause im out of ideas ------------------------------>
+
+CASE SPECIFIC TEST CASES FOR OCTAL INTEGERS
+[./tokenizer "077"]      [octal integer: "077"]
+[./tokenizer "077A"]     [octal integer: "077 | word: "A"] <--------------------------------------- CURRENT ERROR -------------------------------------------------->
+[./tokenizer "077[]"]    [octal integer: "077" | left bracket: "[" | right bracket: "]"] <--------- CURRENT ERROR -------------------------------------------------->
+[./tokenizer "078"]      [decimal integer: "078"]
+<--------------------------------- to add more once errors are fixed ----------------------------------------->
+
+
+CASE SPECIFIC TEST CASES FOR HEXADECIMAL INTEGERS:
+[./tokenizer "0x9F"]     [hexadecimal integer: "0x9F"]
+[./tokenizer "0x9G"]     [decimal integer: "0" | word: "x9G"]
+[./tokenizer "0x00"]     [hexadecimal integer: "0x00"]
+[./tokenizer "0xAA"]     [hexadecimal integer: "0xAA"]
+[./tokenizer "1xAA"]     [decimal integer: "1" | word: "xAA"]
+[./tokenizer "AxAA"]     [word: "AxAA"]
+[./tokenizer "0xAA++="]  [hexadecimal integer: "0XAA" | increment: "++" | assignment: "="]
+<-------------------------------- to add more once skyler looks at this cause im out of ideas ------------------------------>
+
+GENERAL TEST CASES FOR WORDS:
+[./tokenizer "A word is"][word: "A" | word: "word" | word: "is"]
+[./tokenizer "Hel12 12e"][word: "Hel12" | decimal integer: "12" | word: "e"]
+[./tokenizer "[array]"]  [left bracket: "[" | word: "array" | right bracket: "]"]
+ <-------------------------------- to add more once skyler looks at this cause im out of ideas ------------------------------>
+
+ GENERAL TEST CASES FOR OPERATORS:
+ [./tokenizer "++++ | +++= - +"] [increment: "++" | increment: "++" | bitwise OR: "|" | increment: "++" | plus equals: "+=" | minus/subtract: "-" | addition: "+"]
+ [./tokenizer ":^=A*&mo!=="]     [conditional false: ":" | bitwise XOR equals: "^=" | word: "A" | multiply/dereference operator : "*" | AND/address: "&"]
+
+
+ COMPLEX TEST CASES: 
+ [./tokenizer "0x320 [ *74 + wor077 073..e2.100 2.1e-1[]"] [hexadecimal integer: "0x320" | left bracket: "[" | multiply/dereference operator: "*" | decimal integer: "74" | addition: "+" | word: "wor077" | octal integer: "073" 
+ | structure member: "." | structure member: "." | word: "e2" | structure member: "." | decimal integer: "100" | floating point: "2.1e-1" | left bracket: "["]
+
+
+
+
+
+
+
+
+
+
