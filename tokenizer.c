@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -365,6 +364,7 @@ int main (int argc, char **argv) {
             || (flag == 44) && !(isNumber(argv[1][i])) && (argv[1][i] != '.')
             // operator cases after hex
             || (flag == 45) && (isOperator(argv[1][i]))) {
+                
         
                 // if the current token is a operator, we need to determine which operator that is so we properly print
                 if (hold_type == 2) flag = whichOperator(hold);
@@ -382,8 +382,8 @@ int main (int argc, char **argv) {
 
                 // since we've printed token, we need to reset the values of token and the before-appended token for the next token that appears should the string not have ended.  
                 free(hold);
-                free(last_held);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
+                free(last_held);
                 last_held = malloc(sizeof(char) * strlen(argv[1]));    
                 flag = -1;
                 count = 0;
