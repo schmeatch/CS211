@@ -26,7 +26,7 @@ bool isOperator(char ch) {
 // delim check
 bool isDelim(char ch) {
     // different white space coniditons
-    if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f') return true;
+    if(ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\f' || ch == '\0') return true;
     return false;
 }
 
@@ -122,7 +122,7 @@ int whichOperator(char *str){
     }
 }
 
-// prints the current token based on the flag that we assigned it.
+// prints the current token based on the flag that we assigned it. | 0: words | 1-42: operators | 43-47: integers
 void print(char *hold, int flag) {
     switch(flag) {
         // case for words (i.e abc e743we)
@@ -287,7 +287,7 @@ int main (int argc, char **argv) {
     // last_held is a string that holds the previous string value of hold. This is used for cases such as "+++" where it would be a increment and a addition operator.
     char *last_held = malloc(sizeof(char) * strlen(argv[1]));
 
-    // I FORGET WHAT THIS IS, SKYLAR CHANGE LATER. <><><><><><><><><><><><><><>
+    // temp string necessary for string manipulation in certain cases
     char *temp = malloc(sizeof(char) * strlen(argv[1]));
 
     // the token can be of 4 types: 0 - words, 1 - nums, 2 - ops, -1 - delims
@@ -298,17 +298,20 @@ int main (int argc, char **argv) {
 
     // used to which token we're going to be printing (i.e right bracket... integer... floating value)
     int flag;
-    int expFlag = -1;
-    int negativeExpFlag = -1;
 
-    // variable is used to keep track of where the character will be assigned in hold
+    // variables are used for the build sequence of floating points since they contain special exceptions ("." "e" "e-")
+    bool reset = false;
+    int toBuildExp = 0;
+    bool built = false;
+
+    // variable is used to keep track of where the character will be assigned in the token
     int count = 0;
     
     // to loop through every basic character and build the token
     int i;
     for(i = 0; argv[1][i] != '\0'; i++) {
-
-        // every character will recieve a type.
+        
+        // every character will recieve a type. (letter = 0 | number = 1 | operator = 2)
         if (isLetter(argv[1][i]) ){
                 char_type = 0;
         }else if ( isNumber(argv[1][i]) ){
@@ -317,22 +320,12 @@ int main (int argc, char **argv) {
                 char_type = -1;
         }else{ //operator
                 char_type = 2;
-        }
-
-        printf("%s\n", hold);
-
-
-        // condition 1a:
-        /*
-        This is condition will mostly be used to print the token when it either counters a delimiter or the types of the token and the current character mismatch.
-        The current token (hold) will be printed to which then the values of the current token (hold) will be reset.
-        It only does something if the current token is not empty.
-        */
-        if(strlen(hold) > 0){
-
-            // operator case: if the current token (hold) type is not a operator while the last_hold type is. This is used for cases where (+++) becomes ("++") and ("+").
-            if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
-
+        }    
+   
+        // Condition 1: This will primarily be focused on dealing with the patternization of tokens and printing the token when necessary
+        // for operator inputs such as "+++", we need to first check the last hold states to see if prints need to happen before further modification
+        //there are also the checks for the immediate print cases
+        if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
                 // we need to determine which operator the token before the current character is added is.
                 flag = whichOperator(last_held);
 
@@ -342,10 +335,14 @@ int main (int argc, char **argv) {
                 //removes last_held string from hold
                 memmove(temp, hold + strlen(last_held), strlen(hold) - strlen(last_held));
                 
-                // we want to reset the values of the token  <><><><><<><><><>
+                // we want to reset the values of the token  
                 free(hold);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
+                
+                // we copy the current contents of temporary into hold (current token)
                 strcpy(hold,temp);
+                
+                // we want to reset temp since it will be used for a different token
                 free(temp);
                 temp = malloc(sizeof(char) * strlen(argv[1]));
          
@@ -355,114 +352,172 @@ int main (int argc, char **argv) {
                 last_held = malloc(sizeof(char) * strlen(argv[1]));
                 flag = whichOperator(hold);
                 count = 1;
+        }else if(strlen(hold) > 0){
+           
+           // this condition handles exceptions to the token which are not allowed. (i.e letters after a number in a numeric-designated token)
+           // designated patterns can be found in the ASST0.pdf
+           if
+            // delimiter case
+            (  (char_type == -1) 
+            // operational characters after a token type 0 (word)
+            || ((hold_type == 0) && (flag == 0) && (isOperator(argv[1][i])))
+            // non-numeric cases after an octal integer 
+            || (flag == 44) && !(isNumber(argv[1][i])) && (argv[1][i] != '.')
+            // operator cases after hex
+            || (flag == 45) && (isOperator(argv[1][i]))) {
+        
+                // if the current token is a operator, we need to determine which operator that is so we properly print
+                if (hold_type == 2) flag = whichOperator(hold);
 
-            // condition 1b: (corner cases)
-            /*
-            In this condition, the current token will be printed if a delimiter or a pattern mismatch occurs is encountered. 
-            This will accounts for cases such as where the current token is a word/number and a operator is encountered or hold is a float and a non-period operator encountered.
-            -- focuses on printing out the different edge cases
-            */
-            } else if((hold_type == 1) && (flag == 43) && (char_type == 0) // special case 1: alphabetical characters are encountered while the current token type is numeric.
-                    // special case 2: delimiters are encountered
-                    || (char_type == -1)  
-                    // special case 3.1: floating values are raised to the value of e (-) but there is nothing after the e- (i.e 2.0e-) or a non-Numeric chacter is after e- (i.e 2.0e-A)
-                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 46) && (argv[1][i] == 'e') && (argv[1][i+1] == '-') && ((argv[1][i+2] == '\0') || !(isNumber(argv[1][i+2]))))  
-                    // special case 3.2: floating values are raised to the value of e () but there is nothing after e. (i.e 2.0e)
-                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 46) && (argv[1][i] == 'e') && ((isLetter(argv[1][i+1])) || (argv[1][i+1] == '\0')))     
-                    // special case 3.3: the operation "." is encountered while the token flag are integers thus making it a floating value but the character after "." is non-numeric.
-                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (argv[1][i] == '.') && ((argv[1][i + 1] == '\0') || !(isNumber(argv[1][i+1])))) 
-                    // special case 3.4: the operator "-" is encountered for floating values but it is not placed after the "e". (i.e 2.0e1-3)
-                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 47) && (char_type == 2) && (argv[1][i] == '-') && (argv[1][i-1] != 'e'))
-                    // special case 3.5: alphabetical characters other than e are encountered in floating values (i.e 2.1b3)  
-                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (char_type == 0) && (flag != 45) && (argv[1][i] != 'e') && (flag != 44)) 
-                    // special case 3.6 : operators are encountered after floats
-                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (char_type == 2) && ((flag == 46) || (flag == 46)) && (isOperator(argv[1][i])))
-                    // special case 3.7: floating values are raised to the value of e () but there is a operator after e that isn't -
-                    || ((hold_type == 1) && (flag != 44) && (flag != 45) && (flag == 46) && (argv[1][i] == 'e') && ((isOperator(argv[1][i+1])) && (argv[1][i+1] != '-') || (argv[1][i+1] == '\0')))  
-                    // special case 4: operational characters are encountered while the current token type is alphabetical characters.
-                    || ((hold_type == 0) && (char_type == 2)) 
-                    // special case 5: operational characters are encountered while the current token type are numeric characters.
-                    || ((hold_type == 1) && (flag == 43) && (char_type == 2) && (argv[1][i] != '.'))  
-                    // <><><><><><><><><><><><><><><><><><><><><><>
-                    || ((hold_type == 1) && (flag == 47) && (char_type == 2) && (argv[1][i] == '-') && (argv[1][i+1] == '\0')) 
-                    // special case 7: non-operational characters are encountered while the current token type are operational characters.
-                    || ((hold_type == 2) && (char_type != 2))
-                    // error case where . got appended to a hexadecimal
-                    || ((hold_type == 1) && (flag == 45) && (isOperator(argv[1][i])))){ 
-
-                // determines which operator the current token type is if it is of type operational characters.
-                if (hold_type == 2){
-                    flag = whichOperator(hold);
-                }
-
-                //print token
-                print(hold, flag);
-
-                //reset the values of hold and flag  <><><><><><><><><><><><><><><><><><><><><><><
-                free(hold);
-                free(last_held);
-                last_held = malloc(sizeof(char) * strlen(argv[1]));
-                hold = malloc(sizeof(char) * strlen(argv[1]));
-                flag = -1;
-                count = 0;
-            
-            }
-
-        }
-    
-        // Condition 2:
-        /*
-        This condition will be triggered if the current contents of the token are not empty while the current chraacter is not a delim. This would cause the character to be appended to the token should it hit the proper conditions.
-        -- this condition primarily focuses on numeric values such as decimal, floats, hexademical, octal
-        */
-        if(strlen(hold) != 0 && char_type != -1) {
-
-            // Condition block: Token is current a numeric character string --> it encounters a ".". These conditions will determine whether it becomes a floating value or it prints an integer and a operational character (i.e 2 . )
-
-            // default case for floating values. if a "." is encountered 
-            if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44) && argv[1][i+1] != '\0') {
-                flag = 46;
-            // special case : the token is currently a float and it encounters another '.'
-            } else if(hold_type == 1 && argv[1][i] == '.' && flag == 46) {
-                print(hold, flag);
-                free(hold);
-                hold = malloc(sizeof(char) * strlen(argv[1]));
-                print(".", 5);
-                count = 0;
-                continue;
-            // special case : used to change the flags of the token. This will be a floating value with a expon 'e'.
-            } else if(hold_type == 1 && argv[1][i] == 'e' && flag == 46 && argv[1][i+1] != '\0') {
-                flag = 47; // float case with exp.
-                hold[count] = argv[1][i];
-                count++;
-                continue;
-
-            // special case: the flag of the current token is floating values with 'e' but it encounters another 'e'.
-            } else if(hold_type == 1 && argv[1][i] == 'e' && flag == 47) {
-                
-                // We want to print the current token.
-                print(hold, flag);
-
-                // We want to clear up the contents of the current token then append in the 'e' that we encountered
-                free(hold);
-                hold = malloc(sizeof(char) * strlen(argv[1]));
-                count = 0;
-                hold[count] = argv[1][i];
-                count++;
-                hold_type = 0;
-                flag = 0;
-
-                // special case
-                if(argv[1][i + 1] == '\0') {
-                    if (hold_type == 2){
-                        flag = whichOperator(hold);
-                    }
+                // corner case when it comes to incomplete hexadecimal integers otherwise we print the token as normal because we encountered a pattern error
+                if (strcmp(hold,"0X") == 0){
+                    print("0",44);
+                    print("X",0);
+                } else if (strcmp(hold,"0x") == 0){
+                    print("0",44);
+                    print("x",0);
+                }else{
                     print(hold, flag);
                 }
+
+                // since we've printed token, we need to reset the values of token and the before-appended token for the next token that appears should the string not have ended.  
+                free(hold);
+                free(last_held);
+                hold = malloc(sizeof(char) * strlen(argv[1]));
+                last_held = malloc(sizeof(char) * strlen(argv[1]));    
+                flag = -1;
+                count = 0;
+
+                }
+            }
+
+            
+       // Condition 2: This condition is for the assembly of tokens. If the necessary conditions suffice, the character will be appended to the token in which we continue to the next iteration to determine if the next character is appended or not.
+        if(strlen(hold) != 0 && char_type != -1) {
+            
+            // Case 1: the current character type is the same as the token type. We will append the character to the token depending on the value of count (the next empty location in the token).
+            if(((hold_type == 0) && ((char_type == 0) || (char_type == 1))) || (hold_type == 1) && (flag == 43) && (char_type == 1) || (hold_type == 2) && (char_type == 2)   ) {
+                // we want to save the current token before we append the new character in the event that we need to do modifications on the previous token.
+                last_held= strcpy(last_held,hold);
+
+                // the character is appended to the token
+                hold[count] = argv[1][i];
+                count++;
+
+                //**if input ends without delim
+                // Corner Case: In this case, the argument ends without encountering a deliminator or encountering a pattern mismatch in the token.
+                if(argv[1][i+1] == '\0') {
+                    if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
+                        //get flag operator
+                        flag = whichOperator(last_held);
+                        //print as normal
+                        print(last_held, flag);
+                        //removes last_held string from hold
+                        memmove(temp, hold + strlen(last_held), strlen(hold) - strlen(last_held));
+                        strcpy(hold,temp);
+                    }
+                        
+                    if (hold_type == 2){
+                        flag = whichOperator(hold);
+                    } else if(hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
+                        flag = 44;
+                    }
+
+                    print(hold, flag);
+                    free(hold);
+                }
                 continue;
+            } 
+            
+            // In the following conditions, it focuses on creating the build sequence for floating values because they require a special build pattern + unique conditions that need to be fulfilled.
+
+            // (Floating Point) Case 1: A "." is encountered while the current token type are numeric decimal integers. 
+            // The decimal integer token will be converted to type floating point and the necessary steps to build the token without interference from encountering the wrong pattern are set up.
+            if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44)) {
+               
+                // In this case, we want to check if there's actually a character in the next iteration or not.
+                // If there is no character, then it is not a floating point. If there is a character, we want to check if its numeric.
+                if(isNumber(argv[1][i+1])  && (argv[1][i+1] != '\0')) {
+                    // flag for floating point
+                    flag = 46;
+                    // unique build sequence for floating points which bypasses the exceptions due to the various corner cases
+                    toBuildExp = 2; 
+                // This condition establishes that the next character was either not a number or it was the end of the argument.
+                // Thus we print the current token and we call the reset which resets all the token setups.
+                } else if(!(isNumber(argv[1][i+1])) || (argv[1][i] == '\0')){
+                    print(hold, flag);
+                    reset = true;
+                }
+            
+            // (Floating Point) Case 2: A "e" is encountered while the current token type is of type floating point.
+            } else if((hold_type == 1) && (argv[1][i] == 'e') && (flag == 46)) {
+                
+                // In this list of conditions, we want to determine if the proper conditions for an exponent floating point to occur (i.e 2.0e10, 2.0e-10)
+                if((argv[1][i+1] == '\0')
+                || (isLetter(argv[1][i+1])) 
+                || ((isOperator(argv[1][i+1]) && (argv[1][i+1] != '-')))  
+                || ((argv[1][i+1] == '-') && !(isNumber(argv[1][i+2])))
+                || ((argv[1][i+1] == '-') && (argv[1][i+2] == '\0'))) {
+                    print(hold, flag);
+                    reset = true;
+                // unique build sequence where you check if the form (#.#e#-#) is available. (i.e 2.0e-10)
+                } else if( (argv[1][i+1] == '-') && (isNumber(argv[1][i+2])) ) {
+                    // flag 47 is the flag for floating point with exponents
+                    flag = 47;
+
+                    // tells the buildCondition that you can append 3 times without checking the pattern or delims. 3 is (print "e", "-", and the numeric value after "-")
+                    toBuildExp= 3;
+
+                    // this flag tells us when the floating points are set up or not.
+                    built = false;
+                // This is the normal build Condition for floating points with exponents.
+                } else if(isNumber(argv[1][i+1])) {
+                    flag = 47;
+                    toBuildExp = 2;
+                    built = false;
+                }
             }
             
-            
+            // Special Build Sequence for Floating Points
+            // Since floating points have unique conditions, we need to have a seperate build condition required for it.
+            if(toBuildExp > 0 || ((flag == 46 || flag == 47) && (isNumber(argv[1][i])))) {
+                // We append in the character like normal.
+                hold[count] = argv[1][i];
+                count++;
+
+                // We keep track of how many times we need to go through with the build condition before we need to start checking the pattern / delims again.
+                toBuildExp --;
+                if(toBuildExp == 0) built = true;
+    
+                if(argv[1][i+1] == '\0') {}
+                continue;
+            } 
+
+            // resets the values and accounts for edge cases
+            if(reset) {
+                free(hold);
+                hold = malloc(sizeof(char) * strlen(argv[1]));
+                count = 0;
+                hold[count] = argv[1][i];
+                hold_type = char_type;
+                if(isLetter(argv[1][i])) flag = 0;
+                if(char_type == 2) flag = whichOperator(hold);
+                count++;
+                reset = false;
+
+                if(argv[1][i+1] == '\0') {
+                    if(char_type == 2) flag = whichOperator(hold);
+                    print(hold, flag);
+                    free(hold);
+                    hold = malloc(sizeof(char) * strlen(argv[1]));
+                    
+                    continue;
+                }
+
+                continue;
+
+            }
+        
             // if 0 was passed in as first char of a token- check next char for possible: octal(44), hex(45), or dec(43)
             if (flag == 45 && count == 1){
                 if ( (argv[1][i] >= '0') && (argv[1][i] <= '7') ){
@@ -475,6 +530,9 @@ int main (int argc, char **argv) {
                     //decimal if following char is 8 or 9 because that breaks the pattern for octal
                     flag = 43;              
                 }
+                hold[count] = argv[1][i];
+                count++;
+                continue;
             }
 
             //special cases for octal/hex after the first nonzero
@@ -483,29 +541,76 @@ int main (int argc, char **argv) {
                 if ( (argv[1][i] == '8') ||  (argv[1][i] == '9') ){
                     flag = 43;
                 }
+                hold[count] = argv[1][i];
+                count++;
+                continue;
             }else if (flag == 45 && count > 1){
                 //if hex pattern has been established (0x or 0X), the next chars can only be 0-9 or letters A-F
+                //if its just 0x or 0X print as two separate tokens
+                
+
                 if( ( ((argv[1][i] >= 'g') && (argv[1][i] <= 'z')) || ((argv[1][i] >= 'G') && (argv[1][i] <= 'Z')) ) ){
                     //(**if g-z encountered): print 0 as decimal, change flag/type to word
-                    print("0",43);
+                    print("0",44);
                     flag = 0;
                     hold_type = 0;
                     memmove(hold, hold+1, strlen(hold));
                     count--;
+
+                    //(**if g-z encountered): print 0 as decimal, change flag/type to word
+                    
                     
                 }
+                hold[count] = argv[1][i];
+                count++;
+                continue;
             }
-
-            last_held= strcpy(last_held,hold);
-            hold[count] = argv[1][i];
-            count++;
+            
             
         }
+
+        // condition 1a:
+        /*
+        This is condition will mostly be used to print the token when it either counters a delimiter or the types of the token and the current character mismatch.
+        The current token (hold) will be printed to which then the values of the current token (hold) will be reset.
+        It only does something if the current token is not empty.
+        */
+
+       //OTHER PRINT CASES *need to be done after hold modification
+       
+       
+        if(strlen(hold) > 0){
+
+           if
+          
+            (   
+            // non-operational characters after a token type 2 (operators)
+            ((hold_type == 2) && !(isOperator(argv[1][i])))
+            // non-numeric cases after a decimal integer 
+            || ((hold_type == 1) && !(isNumber(argv[1][i])) && (flag == 43))
+            // floating cases:
+            || ((flag == 46 || flag == 47) && (built == true) && !(isNumber(argv[1][i])))) { 
+                if (hold_type == 2) flag = whichOperator(hold);
+                print(hold, flag);
+                free(hold);
+                hold = malloc(sizeof(char) * strlen(argv[1]));
+                free(last_held);
+                last_held = malloc(sizeof(char) * strlen(argv[1]));
+                flag = -1;
+                count = 0;
+            }
+
+            
+        }
+
         // Condition 3:
         /*
         This condition will be the first condition should the token be empty. It will append in the current character at the first slot and then determine the possible flag values of the token.
         */
+        // FILL HOLD (EMPTY)
+
         if(strlen(hold) == 0 && char_type != -1) {
+            
             if (isLetter(argv[1][i]) ){
                 flag = 0;
                 hold_type = 0;
@@ -524,43 +629,31 @@ int main (int argc, char **argv) {
                 flag = 1;
                 hold_type = 2;
             }
-
+    
             //asigns the first value and moves on (count starts at 0 and after this is 1)
             hold[0] = argv[1][i];
             count++;
 
-            
-        
-        } 
+        }  
+    }
 
-        // special case hits end
-        if(argv[1][i + 1] == '\0') {
-            
-            if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
-                //get flag operator
-                flag = whichOperator(last_held);
-                //print as normal
-                print(last_held, flag);
-                //removes last_held string from hold
-                memmove(temp, hold + strlen(last_held), strlen(hold) - strlen(last_held));
-                strcpy(hold,temp);
-            }
+    //if input ends without delim and hold still has char
+        if (strlen(hold) > 0) {
             
             if (hold_type == 2){
                 flag = whichOperator(hold);
             } else if(hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
                 flag = 43;
             }
-
-            print(hold, flag);
+            if (strcmp(hold,"0X") == 0){
+                    print("0",44);
+                    print("X",0);
+            } else if (strcmp(hold,"0x") == 0){
+                    print("0",44);
+                    print("x",0);
+            }else{
+                    print(hold, flag);
+            }
+            
         }
-
-
-
-
-
-
-    }
-
-    
 }
