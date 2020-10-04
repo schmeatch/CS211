@@ -322,21 +322,20 @@ int main (int argc, char **argv) {
                 char_type = 2;
         }    
 
-        // Condition 2:
+        // Condition 1: 
         /*
-        This condition is tailored towards floating values, hexadecimals. and octal integers.
+        The purpose of this first condition is to build the necessary tokens. 
+        - Floating values have a unique build sequence because there are exceptions to the token such as '-' '.' 'e'.
 
-        - Floating Values: Floating Values have a different building scheme in comparsions to other tokens. We have to account for edge cases with the 
-        "." | "-" | "e" because they are exceptions to our token definitions.
-
-        - <skylar add more info>
+        
         */
-
-       
         if(strlen(hold) != 0 && char_type != -1) {
 
+            // case 1: the token type is the same as the current character type --> it is appended to the token.
             if(((hold_type == 0) && ((char_type == 0) || (char_type == 1))) || (hold_type == 1) && (flag == 43) && (char_type == 1)) {
                 hold[count] = argv[1][i];
+
+                // edge case: the program ends before printing up the last set of hold
                 if(argv[1][i+1] == '\0') {
                     print(hold, flag);
                     continue;
@@ -350,13 +349,16 @@ int main (int argc, char **argv) {
             if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44)) {
                 // if its a number, we want to change it from a decimal integer to a floating point
                 if(isNumber(argv[1][i+1])  && (argv[1][i+1] != '\0')) {
+                    // flag for floating point
                     flag = 46;
-                    toBuildExp = 2;
+                    // unique build sequence for floating points which bypasses the exceptions due to the various corner cases
+                    toBuildExp = 2; 
                 // other just print the token and then reset it
                 } else if(!(isNumber(argv[1][i+1])) || (argv[1][i] == '\0')){
                     print(hold, flag);
                     reset = true;
                 }
+            
             // case (floating point with e): handles the corner cases involving 'e' | '-' 
             } else if((hold_type == 1) && (argv[1][i] == 'e') && (flag == 46)) {
                 if((argv[1][i+1] == '\0')
@@ -366,12 +368,14 @@ int main (int argc, char **argv) {
                 || ((argv[1][i+1] == '-') && (argv[1][i+2] == '\0'))) {
                     print(hold, flag);
                     reset = true;
+                // unique build sequence where you check if the form (#.#e#-#) is available.
                 } else if( (argv[1][i+1] == '-') && (isNumber(argv[1][i+2])) ) {
                     flag = 47;
                     toBuildExp= 3;
                     built = false;
                     negativeExpFlag = true;
                     expFlag = true;
+                // floating point appendage
                 } else if(isNumber(argv[1][i+1])) {
                     flag = 47;
                     toBuildExp = 2;
@@ -380,6 +384,7 @@ int main (int argc, char **argv) {
                 }
             }
             
+            // floating point build sequence
             if(toBuildExp > 0 || ((flag == 46 || flag == 47) && (isNumber(argv[1][i])))) {
                 hold[count] = argv[1][i];
                 count++;
@@ -391,6 +396,7 @@ int main (int argc, char **argv) {
                 continue;
             } 
 
+            // resets the values and accounts for edge cases
             if(reset) {
                 free(hold);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
@@ -401,6 +407,7 @@ int main (int argc, char **argv) {
                 if(char_type == 2) flag = whichOperator(hold);
                 count++;
                 reset = false;
+
                 if(argv[1][i+1] == '\0') {
                     if(char_type == 2) flag = whichOperator(hold);
                     print(hold, flag);
@@ -465,7 +472,6 @@ int main (int argc, char **argv) {
        
        
         if(strlen(hold) > 0){
-
 
             // operator case: if the current token (hold) type is not a operator while the last_hold type is. This is used for cases where (+++) becomes ("++") and ("+").
             if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
@@ -560,7 +566,6 @@ int main (int argc, char **argv) {
             
         } 
         
-
         // special case hits end
         if(argv[1][i + 1] == '\0') {
             
