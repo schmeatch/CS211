@@ -322,7 +322,7 @@ int main (int argc, char **argv) {
                 char_type = 2;
 
                   ///////////////////////////////////////////////////////
-     printf("\n(%c) ", argv[1][i]);
+
     //  printf("(%d)",flag);
      //  printf("(%d)",hold_type);
    // printf("hold: %s | ", hold);
@@ -332,7 +332,10 @@ int main (int argc, char **argv) {
       
      
         /////////////////////////////////////////////////////
+
+
         }    
+
 
 
         if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
@@ -473,9 +476,7 @@ int main (int argc, char **argv) {
             }
 
     
-            
-            
-            
+        
             // if 0 was passed in as first char of a token- check next char for possible: octal(44), hex(45), or dec(43)
             if (flag == 45 && count == 1){
                 if ( (argv[1][i] >= '0') && (argv[1][i] <= '7') ){
@@ -529,12 +530,12 @@ int main (int argc, char **argv) {
             || ((hold_type == 0) && (flag == 0) && (isOperator(argv[1][i])))
             // non-operational characters after a token type 2 (operators)
             || ((hold_type == 2) && !(isOperator(argv[1][i])))
+            // non-numeric cases after a decimal integer 
+            || ((hold_type == 1) && !(isNumber(argv[1][i])) && (flag == 43))
             //
             || ((flag == 46 || flag == 47) && (hold_type == 1) && !(isNumber(argv[1][i])))
             // floating cases:
-            || ((flag == 46 || flag == 47) && (built == true) && !(isNumber(argv[1][i]))   )
-         
-            ) { 
+            || ((flag == 46 || flag == 47) && (built == true) && !(isNumber(argv[1][i])))) { 
                 if (hold_type == 2) flag = whichOperator(hold);
                 print(hold, flag);
                 free(hold);
@@ -545,6 +546,8 @@ int main (int argc, char **argv) {
                 flag = -1;
                 count = 0;
             }
+
+            
         }
 
         // Condition 3:
