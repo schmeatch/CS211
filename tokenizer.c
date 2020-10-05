@@ -363,9 +363,8 @@ int main (int argc, char **argv) {
             // non-numeric cases after an octal integer 
             || (flag == 44) && !(isNumber(argv[1][i])) && (argv[1][i] != '.')
             // operator cases after hex
-            || (flag == 45) && (isOperator(argv[1][i]))) {
-                
-        
+            || (flag == 45) && ((isOperator(argv[1][i]) && (argv[1][i] != '.')) || ((argv[1][i] == '.') && (argv[1][i+1] == '\0'))) 
+            ) { 
                 // if the current token is a operator, we need to determine which operator that is so we properly print
                 if (hold_type == 2) flag = whichOperator(hold);
 
@@ -433,7 +432,7 @@ int main (int argc, char **argv) {
 
             // (Floating Point) Case 1: A "." is encountered while the current token type are numeric decimal integers. 
             // The decimal integer token will be converted to type floating point and the necessary steps to build the token without interference from encountering the wrong pattern are set up.
-            if(hold_type == 1 && argv[1][i] == '.' && (flag == 43 || flag == 44)) {
+            if(hold_type == 1 && argv[1][i] == '.' && ((flag == 43 || flag == 44) || ((flag == 45) && (strcmp(hold, "0") == 0)))) {
                
                 // In this case, we want to check if there's actually a character in the next iteration or not.
                 // If there is no character, then it is not a floating point. If there is a character, we want to check if its numeric.
