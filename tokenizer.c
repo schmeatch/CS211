@@ -302,6 +302,7 @@ int main (int argc, char **argv) {
     bool reset = false;
     int toBuildExp = 0;
     bool built = false;
+    bool hasX = false;
 
     // variable is used to keep track of where the character will be assigned in the token
     int count = 0;
@@ -363,7 +364,7 @@ int main (int argc, char **argv) {
             // non-numeric cases after an octal integer 
             || (flag == 44) && !(isNumber(argv[1][i])) && (argv[1][i] != '.')
             // operator cases after hex
-            || (flag == 45) && ((isOperator(argv[1][i]) && (argv[1][i] != '.')) || ((argv[1][i] == '.') && (argv[1][i+1] == '\0'))) 
+            || (flag == 45) && (isOperator(argv[1][i])) && (hasX == true) || (flag == 45) && (argv[1][i] == '.') && (hasX == false) 
             ) { 
                 // if the current token is a operator, we need to determine which operator that is so we properly print
                 if (hold_type == 2){
@@ -394,6 +395,7 @@ int main (int argc, char **argv) {
                 last_held = malloc(sizeof(char) * strlen(argv[1]));    
                 flag = -1;
                 count = 0;
+                hasX = false;
 
                 }
             }
@@ -445,12 +447,14 @@ int main (int argc, char **argv) {
                     }else{
                         print(hold, flag);
                     }
+                    
 
                     // since we've printed token, we need to reset the values of token and the before-appended token for the next token that appears should the string not have ended.  
                     free(hold);
                     hold = malloc(sizeof(char) * strlen(argv[1]));
                     free(last_held);
-                    last_held = malloc(sizeof(char) * strlen(argv[1]));  
+                    last_held = malloc(sizeof(char) * strlen(argv[1])); 
+                    hasX = false; 
                     }
                 continue;
             } 
@@ -524,6 +528,7 @@ int main (int argc, char **argv) {
                 free(hold);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
                 count = 0;
+                hasX = false;
                 hold[count] = argv[1][i];
                 hold_type = char_type;
                 if(isLetter(argv[1][i])) flag = 0;
@@ -551,6 +556,7 @@ int main (int argc, char **argv) {
                     flag = 44; 
                 }else if ( (argv[1][i] == 'x') ||  (argv[1][i] == 'X') ){
                     //hex next char has to be X or x
+                    hasX = true;
                     flag = 45;
                 }else if ( (argv[1][i] == '8') ||  (argv[1][i] == '9') ){
                     //decimal if following char is 8 or 9 because that breaks the pattern for octal
@@ -668,7 +674,15 @@ int main (int argc, char **argv) {
                 flag = 44;
             }
             
-            print(hold, flag);
+             if (strcmp(hold,"0X") == 0){
+                        print("0",44);
+                        print("X",0);
+                    } else if (strcmp(hold,"0x") == 0){
+                        print("0",44);
+                        print("x",0);
+                    }else{
+                        print(hold, flag);
+                    }
             
             
         }
