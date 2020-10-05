@@ -324,8 +324,9 @@ int main (int argc, char **argv) {
    
         // Condition 1: This will primarily be focused on dealing with the patternization of tokens and printing the token when necessary
         // for operator inputs such as "+++", we need to first check the last hold states to see if prints need to happen before further modification
+        // for the fully letter operator "sizeof"- ignore if found and current char is number or letter
         //there are also the checks for the immediate print cases
-        if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
+        if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) && !(whichOperator(last_held) == 7 && isLetter(argv[1][i]) || isNumber(argv[1][i]) )  ) { 
                 // we need to determine which operator the token before the current character is added is.
                 flag = whichOperator(last_held);
 
@@ -352,6 +353,7 @@ int main (int argc, char **argv) {
                 last_held = malloc(sizeof(char) * strlen(argv[1]));
                 flag = whichOperator(hold);
                 count = 1;
+                
         }else if(strlen(hold) > 0){
            
            // this condition handles exceptions to the token which are not allowed. (i.e letters after a number in a numeric-designated token)
@@ -367,7 +369,15 @@ int main (int argc, char **argv) {
             || (flag == 45) && (isOperator(argv[1][i]))) {
         
                 // if the current token is a operator, we need to determine which operator that is so we properly print
-                if (hold_type == 2) flag = whichOperator(hold);
+                if (hold_type == 2){
+                    flag = whichOperator(hold);
+                //single 0 is octal
+                } else if (hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
+                    flag = 44;
+                //sizeof would be recognized as string first
+                } else if (strcmp(hold, "sizeof") == 0){
+                    flag = 7;
+                }
 
                 // corner case when it comes to incomplete hexadecimal integers otherwise we print the token as normal because we encountered a pattern error
                 if (strcmp(hold,"0X") == 0){
@@ -382,8 +392,8 @@ int main (int argc, char **argv) {
 
                 // since we've printed token, we need to reset the values of token and the before-appended token for the next token that appears should the string not have ended.  
                 free(hold);
-                free(last_held);
                 hold = malloc(sizeof(char) * strlen(argv[1]));
+                free(last_held);
                 last_held = malloc(sizeof(char) * strlen(argv[1]));    
                 flag = -1;
                 count = 0;
@@ -407,6 +417,7 @@ int main (int argc, char **argv) {
                 //**if input ends without delim
                 // Corner Case: In this case, the argument ends without encountering a deliminator or encountering a pattern mismatch in the token.
                 if(argv[1][i+1] == '\0') {
+                   
                     if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
                         //get flag operator
                         flag = whichOperator(last_held);
@@ -417,16 +428,35 @@ int main (int argc, char **argv) {
                         strcpy(hold,temp);
                     }
                         
+                    // if the current token is a operator, we need to determine which operator that is so we properly print
                     if (hold_type == 2){
                         flag = whichOperator(hold);
-                    } else if(hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
+                    //single 0 is octal
+                    } else if (hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
                         flag = 44;
+                    //sizeof would be recognized as string first
+                    } else if (whichOperator(hold) == 7){
+                        flag = 7;
                     }
 
-                    print(hold, flag);
+                    if (strcmp(hold,"0X") == 0){
+                        print("0",44);
+                        print("X",0);
+                    } else if (strcmp(hold,"0x") == 0){
+                        print("0",44);
+                        print("x",0);
+                    }else{
+                        print(hold, flag);
+                    }
+
+                    // since we've printed token, we need to reset the values of token and the before-appended token for the next token that appears should the string not have ended.  
                     free(hold);
-                }
-                continue;
+                    hold = malloc(sizeof(char) * strlen(argv[1]));
+                    free(last_held);
+                    last_held = malloc(sizeof(char) * strlen(argv[1]));  
+                    }
+                    continue;
+                
             } 
             
             // In the following conditions, it focuses on creating the build sequence for floating values because they require a special build pattern + unique conditions that need to be fulfilled.
@@ -550,15 +580,12 @@ int main (int argc, char **argv) {
                 
 
                 if( ( ((argv[1][i] >= 'g') && (argv[1][i] <= 'z')) || ((argv[1][i] >= 'G') && (argv[1][i] <= 'Z')) ) ){
-                    //(**if g-z encountered): print 0 as decimal, change flag/type to word
-                    print("0",44);
+                 
+                    //(**if g-z encountered): print octal and reset hold to single letter (g-z)
+                    print(hold,45);
                     flag = 0;
                     hold_type = 0;
-                    memmove(hold, hold+1, strlen(hold));
-                    count--;
-
-                    //(**if g-z encountered): print 0 as decimal, change flag/type to word
-                    
+                    count = 0;
                     
                 }
                 hold[count] = argv[1][i];
@@ -578,14 +605,10 @@ int main (int argc, char **argv) {
 
        //OTHER PRINT CASES *need to be done after hold modification
        
-       
         if(strlen(hold) > 0){
 
-           if
-          
-            (   
             // non-operational characters after a token type 2 (operators)
-            ((hold_type == 2) && !(isOperator(argv[1][i])))
+           if( ((hold_type == 2) && !(isOperator(argv[1][i])))
             // non-numeric cases after a decimal integer 
             || ((hold_type == 1) && !(isNumber(argv[1][i])) && (flag == 43))
             // floating cases:
@@ -643,17 +666,11 @@ int main (int argc, char **argv) {
             if (hold_type == 2){
                 flag = whichOperator(hold);
             } else if(hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
-                flag = 43;
+                flag = 44;
             }
-            if (strcmp(hold,"0X") == 0){
-                    print("0",44);
-                    print("X",0);
-            } else if (strcmp(hold,"0x") == 0){
-                    print("0",44);
-                    print("x",0);
-            }else{
-                    print(hold, flag);
-            }
+            
+            print(hold, flag);
+            
             
         }
 }
