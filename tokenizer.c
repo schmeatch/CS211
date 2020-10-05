@@ -302,6 +302,8 @@ int main (int argc, char **argv) {
     bool reset = false;
     int toBuildExp = 0;
     bool built = false;
+
+    // assume hex if 0 is input so flag tells if actually hex
     bool hasX = false;
 
     // variable is used to keep track of where the character will be assigned in the token
@@ -321,11 +323,13 @@ int main (int argc, char **argv) {
         }else{ //operator
                 char_type = 2;
         }    
-   
-        // Condition 1: This will primarily be focused on dealing with the patternization of tokens and printing the token when necessary
-        // for operator inputs such as "+++", we need to first check the last hold states to see if prints need to happen before further modification
-        //there are also the checks for the immediate print cases
-        if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ) { 
+
+        // General Case 1
+        // print case found so print and reset hold
+
+        if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) && ( whichOperator(last_held) == 7  && !(isLetter(argv[1][i])) && !(isNumber(argv[1][i])) )  ) { 
+                // ** case for "+++" needed for operators which are more than size 1
+                // ignore sizeof if current char is letter or number
                 // we need to determine which operator the token before the current character is added is.
                 flag = whichOperator(last_held);
 
@@ -367,7 +371,7 @@ int main (int argc, char **argv) {
             || ((flag == 45) && (isOperator(argv[1][i])) && (hasX == true)) || ((flag == 45) && (argv[1][i] == '.') && (hasX == false) && (strcmp(hold, "0") != 0) )
             ) { 
 
-                if(i== 1) printf("hold %s, char %c\n", hold, argv[1][i]);
+            
                 // if the current token is a operator, we need to determine which operator that is so we properly print
                 if (hold_type == 2){
                     flag = whichOperator(hold);
@@ -404,6 +408,7 @@ int main (int argc, char **argv) {
 
             
        // Condition 2: This condition is for the assembly of tokens. If the necessary conditions suffice, the character will be appended to the token in which we continue to the next iteration to determine if the next character is appended or not.
+        // essentially fill while hold not empty case
         if(strlen(hold) != 0 && char_type != -1) {
             
             // Case 1: the current character type is the same as the token type. We will append the character to the token depending on the value of count (the next empty location in the token).
@@ -417,9 +422,10 @@ int main (int argc, char **argv) {
 
                 //**if input ends without delim
                 // Corner Case: In this case, the argument ends without encountering a deliminator or encountering a pattern mismatch in the token.
+                // mini case 1 - final checks of hold strings to see what to print out
                 if(argv[1][i+1] == '\0') {
                    
-                    if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) ){ 
+                   if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) && ( whichOperator(last_held) == 7  && !(isLetter(argv[1][i])) && !(isNumber(argv[1][i])) )  ) { 
                         //get flag operator
                         flag = whichOperator(last_held);
                         //print as normal
@@ -436,7 +442,7 @@ int main (int argc, char **argv) {
                     } else if (hold_type == 1 && strcmp(hold, "0") == 0) { // since we assumed 0 would cause a hexadecimal, we need to beware of this case.
                         flag = 44;
                     //sizeof would be recognized as string first
-                    } else if (whichOperator(hold) == 7){
+                    } else if (strcmp(hold, "sizeof") == 0){
                         flag = 7;
                     }
 
@@ -608,7 +614,9 @@ int main (int argc, char **argv) {
         The current token (hold) will be printed to which then the values of the current token (hold) will be reset.
         It only does something if the current token is not empty.
         */
-
+       
+       //general case 1
+       // ** print cases for after float built
        //OTHER PRINT CASES *need to be done after hold modification
        
        
