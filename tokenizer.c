@@ -323,13 +323,7 @@ int main (int argc, char **argv) {
         }else{ //operator
                 char_type = 2;
         }    
-             printf("\n (%c)",argv[1][i]);
-    // printf("(%d)",flag);
-    //   printf("(%d)",char_type);
-    printf("hold: %s | ", hold);
-     // printf("last held: %s", last_held);
-     // printf("%d ",whichOperator(hold));
-    //  printf("%d",whichOperator(last_held));
+    
 
 
         // General Case 1
