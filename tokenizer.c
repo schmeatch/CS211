@@ -364,7 +364,7 @@ int main (int argc, char **argv) {
             // non-numeric cases after an octal integer 
             || (flag == 44) && !(isNumber(argv[1][i])) && (argv[1][i] != '.')
             // operator cases after hex
-            || (flag == 45) && (isOperator(argv[1][i])) && (hasX == true) || (flag == 45) && (argv[1][i] == '.') && (hasX == false) 
+            || (flag == 45) && (isOperator(argv[1][i])) && (hasX == true) || (flag == 45) && (argv[1][i] != '.') && (hasX == false) 
             ) { 
                 // if the current token is a operator, we need to determine which operator that is so we properly print
                 if (hold_type == 2){
