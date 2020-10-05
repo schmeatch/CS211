@@ -40,7 +40,7 @@ CASE SPECIFIC TEST CASES FOR HEXADECIMAL INTEGERS:
 [./tokenizer "0xA+A"]    [hexadecimal integer: "0xA | addition: "+" | word: "A"]
 [./tokenizer "0X"]       [octal integer: "0" | word: "X"]
 [./tokenizer "000x9F"]   [octal integer: "000" | word: "x9F"]
-[./tokenizer "0X99GAVIN"]
+[./tokenizer "0X99GAVIN"][hexadecimal: "0X99" | word: "GAVIN"]
 
 GENERAL TEST CASES FOR WORDS:
 [./tokenizer "A word is"][word: "A" | word: "word" | word: "is"]
