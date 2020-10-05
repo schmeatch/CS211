@@ -323,11 +323,19 @@ int main (int argc, char **argv) {
         }else{ //operator
                 char_type = 2;
         }    
+             printf("\n (%c)",argv[1][i]);
+    // printf("(%d)",flag);
+    //   printf("(%d)",char_type);
+    printf("hold: %s | ", hold);
+     // printf("last held: %s", last_held);
+     // printf("%d ",whichOperator(hold));
+    //  printf("%d",whichOperator(last_held));
+
 
         // General Case 1
         // print case found so print and reset hold
 
-        if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) && ( whichOperator(last_held) == 7  && !(isLetter(argv[1][i])) && !(isNumber(argv[1][i])) )  ) { 
+        if( ((whichOperator(last_held) != -1) && (whichOperator(hold) == -1)) || ( whichOperator(last_held) == 7  && !(isLetter(argv[1][i])) && !(isNumber(argv[1][i])) )  ) { 
                 // ** case for "+++" needed for operators which are more than size 1
                 // ignore sizeof if current char is letter or number
                 // we need to determine which operator the token before the current character is added is.
